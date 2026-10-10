@@ -740,6 +740,111 @@ code.inline {
 }
 
 /* ------------------------------------------------------------
+   Upload — dropzone, file chip, OCR progress, value editing
+   ------------------------------------------------------------ */
+
+.dropzone {
+  position: relative;
+  border: 1px dashed var(--ink-40);
+  background: var(--sheet-2);
+  border-radius: 2px;
+  padding: 30px 22px;
+  text-align: center;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.dropzone.over { border-color: var(--thread); background: var(--thread-w); border-style: solid; }
+
+/* the real input covers the zone: clickable and keyboard-focusable */
+.dropzone-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 0;
+}
+.dropzone-input:focus-visible { outline: 2px solid var(--thread); outline-offset: 3px; }
+
+.dropzone-title { font: 600 15px/1.3 var(--sans); color: var(--ink); }
+
+.filepick {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid var(--rule);
+  background: var(--sheet-2);
+  padding: 14px;
+  border-radius: 2px;
+}
+.filepick-thumb {
+  width: 84px;
+  height: 104px;
+  flex: none;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  background: var(--sheet);
+}
+.filepick-thumb.placeholder {
+  display: grid;
+  place-items: center;
+  font: 500 10px/1 var(--mono);
+  color: var(--ink-40);
+}
+.filepick-thumb.placeholder::after { content: 'file'; }
+.filepick-meta { min-width: 0; flex: 1; }
+.filepick-name {
+  font: 600 13.5px/1.4 var(--sans);
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.progress-track {
+  height: 4px;
+  background: var(--sheet-3);
+  border: 1px solid var(--rule);
+}
+.progress-fill {
+  height: 100%;
+  background: var(--thread);
+  transition: width 200ms ease;
+}
+
+.labs-row .labs-edit {
+  width: 110px;
+  padding: 6px 8px;
+  font: 600 13px/1.2 var(--mono);
+  text-align: right;
+  flex: none;
+}
+.labs-del {
+  border: 0;
+  background: none;
+  color: var(--ink-40);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  flex: none;
+}
+.labs-del:hover { color: var(--stamp); }
+
+.docview { border: 1px solid var(--rule); background: var(--sheet-2); }
+.docview img { display: block; width: 100%; height: auto; }
+.docview iframe { display: block; width: 100%; height: 460px; border: 0; }
+
+@media (max-width: 620px) {
+  .filepick { flex-direction: column; }
+  .filepick-thumb { width: 100%; height: 160px; }
+  .labs-row .labs-edit { width: 84px; }
+}
+
+/* ------------------------------------------------------------
    Motion — only where it explains a change
    ------------------------------------------------------------ */
 

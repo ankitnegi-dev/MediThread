@@ -16,7 +16,7 @@ export const NOTE_PREFIX = 'mtn1'
 export const REVOCATION_CAVEAT =
   'Revocation is enforced locally in this demo. Production uses a server-side consent registry.'
 
-const RECORD_FIELDS = ['id', 'type', 'date', 'provider', 'title', 'conditions', 'labs', 'meds', 'notes', 'source', 'flag']
+const RECORD_FIELDS = ['id', 'type', 'date', 'provider', 'title', 'conditions', 'labs', 'meds', 'notes', 'source', 'flag', 'doc', 'docOmitted']
 
 export function sanitizeRecord(r) {
   const out = {}

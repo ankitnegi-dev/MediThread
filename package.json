@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "lz-string": "^1.5.0",
+    "pdfjs-dist": "^6.4.299",
     "qrcode.react": "3.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "6.23.1"
+    "react-router-dom": "6.23.1",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "4.3.1",

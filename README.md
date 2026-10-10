@@ -14,7 +14,7 @@ One timeline for your entire health history. Upload once, carry everywhere, shar
 
 | Brief challenge | MediThread answer |
 |---|---|
-| **Scattered records** (prescriptions, labs, scans in different places/formats) | Unified searchable timeline, newest-first, filter by type/provider/condition. Simulated AI parse normalises uploads (photo/PDF → typed record). |
+| **Scattered records** (prescriptions, labs, scans in different places/formats) | Unified searchable timeline, newest-first, filter by type/provider/condition. Real client-side upload: drag in a PDF/JPG/PNG/WEBP, text is read from the PDF text layer or via OCR, then a rule-based parser pre-fills an **editable review form**. Nothing is saved until the patient confirms. |
 | **Unreliable recall** (allergies, meds, doses forgotten in short consults) | Always-on patient summary: conditions, current meds with doses, allergies, blood group, emergency contact. Doctor sees it before asking. |
 | **Repeated tests + conflicting treatment** | Duplicate-test guard (HbA1c 90d, Creatinine 60d, LDL 120d…) nudges “view prior result instead of repeating”. Curated interaction engine flags e.g. Telmisartan + Ibuprofen *before* you take it. |
 | **Insecure, difficult sharing** | Consent-based expiring links: pick records → 1h/24h/7d expiry → token URL (`#/shared/:token`) → revoke anytime → every view logged in audit trail. No chat forwards. |
@@ -25,7 +25,7 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 ## 2. Key features (judge click-path, ~4 min)
 
 1. **📜 Timeline + trends** — search “HbA1c”, filter Labs, open any record. HbA1c 8.1 → 6.8 and Creatinine SVG trend charts prove control without repeating tests.
-2. **📤 Upload** — type a filename like `hba1c-oct.pdf` → *Simulate AI parse* → duplicate guard fires if that test was done recently (“already done 22 days ago — share instead”).
+2. **📤 Upload** — drop in a lab PDF or a photo of a prescription → *Read this document* → text PDFs come off their text layer, photos/scans go through OCR (English + हिन्दी + தமிழி, downloaded once) → a rule-based parser fills type, date, provider, lab values and medicines into an **editable review form** → the duplicate-test guard and interaction checker run → *Save*. The original is kept in IndexedDB and gets a *View document* / *Download* button in the timeline.
 3. **💊 Meds & Safety** — try adding `Ibuprofen` → HIGH-RISK Telmisartan interaction blocks with explanation + safer alternative. Try `Paracetamol` → green ✅.
 4. **🔗 Share** — select 3 records → 24h link → copy `…#/shared/<token>` → **open the link on your phone over mobile data** (or a second browser with no MediThread data): the records still render, because they travel inside the link. Revoke → the UI states plainly that revocation is enforced locally in this demo. The access log records every open.
 5. **🩺 Doctor** (`#/doctor`) — paste the share code → sees *only* the shared records, plus the patient's summary carried in the link → builds a **note code** → sends it to the patient, who pastes it into their timeline (continuity, not scratch).
@@ -34,7 +34,9 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 ## 3. Tech & architecture
 
 - **Frontend-only static app** — React 18 + Vite 5 + React Router (HashRouter so `dist/index.html` works on any host without rewrites) + `qrcode.react`. No backend → zero setup for judges, local-first privacy story.
-- **Persistence:** `localStorage` (`medithread:v1`) — patient, records, shares, audit. Reset button restores seeded demo.
+- **Persistence:** `localStorage` (`medithread:v1`) — patient, records, shares, audit. Reset button restores seeded demo. **Attachments go to IndexedDB**, not localStorage — localStorage caps at ~5 MB and is synchronous, which would freeze the UI. Records keep only a `fileId` pointer.
+- **Document upload (real, client-side):** drag-and-drop accepts PDF/JPG/PNG/WEBP up to 10 MB with explicit errors for the wrong type or size. Text PDFs are read via **pdfjs-dist** text layer; photos and scanned pages fall back to **tesseract.js** OCR in `eng+hin+tam`, loaded on demand with a progress indicator. A rule-based parser pulls lab values (HbA1c, glucose, LDL, HDL, creatinine, TSH, urea, vitamin D, Hb), medicines with dose/frequency, the date and the provider. Output is a **draft for review** — never auto-saved.
+- **Sharing attachments:** the original file travels inside the link only when it is under 200 KB. Above that the extracted values are shared and the record says *"original file not included."*
 - **Share tokens (cross-device):** v2 token is `lz-string(deflate)` over JSON carrying the patient summary **and the selected record payloads**, so a link opens on any device with an empty localStorage. Validated for expiry, malformed input and local revocation. The emergency PIN is deliberately never embedded in a link.
 - **Revocation — honest limit:** there is no server, so there is no central consent registry. Revoking blocks the link **in the browser that issued it**; until the link expires on its own, it will still open elsewhere. Production uses a server-side consent registry.
 - **Doctor → patient continuity:** with no backend a doctor cannot write into the patient's chart. The Doctor view produces an `mtn1:` **note code**; the patient pastes it under *Sharing → Receive a note* and it joins the timeline.
@@ -49,7 +51,9 @@ src/
   components/ui.jsx       TimelineItem, TypeBadge, LabChart
   data/seed.js            10-record scattered demo history
   utils/store.js          localStorage CRUD + audit
-  utils/medSafety.js      interactions + duplicate-test + simulated parse
+  utils/blobStore.js      IndexedDB attachment store
+  utils/extract.js        file validation, OCR/PDF text, rule-based parser
+  utils/medSafety.js      interactions + duplicate-test windows
   utils/share.js          v2 self-contained token encode / validate + note codes
 ```
 
@@ -71,7 +75,9 @@ npm test         # Vitest — share-token encode/decode/expiry/malformed/revoked
 
 ## 5. Open-source disclosure
 
-React, React-DOM, React-Router-DOM, Vite, @vitejs/plugin-react, qrcode.react, **lz-string** (share-token deflate compression, MIT), **Vitest** (test runner, MIT) — all MIT/standard OSS. No hospital systems integrated (per brief: simulated/public data only). No real patient data; all records fictional.
+React, React-DOM, React-Router-DOM, Vite, @vitejs/plugin-react, qrcode.react, **lz-string** (share-token deflate compression, MIT), **Vitest** (test runner, MIT), **pdfjs-dist** (PDF text extraction, Apache-2.0), **tesseract.js** (client-side OCR, Apache-2.0) — all MIT/standard OSS. No hospital systems integrated (per brief: simulated/public data only). No real patient data; all records fictional.
+
+OCR downloads its language packs (English, हिन्दी, தமிழி) from the Tesseract CDN on first use and caches them; after that it works offline. tesseract.js and pdfjs-dist are dynamically imported, so neither is in the initial bundle.
 
 ## 6. Evaluation lens
 
@@ -82,7 +88,9 @@ React, React-DOM, React-Router-DOM, Vite, @vitejs/plugin-react, qrcode.react, **
 
 ## 7. Team
 
-_Add names + roles here before submission._ Team leader submits via Google Form before **9:00 PM, 10/10/2026** with repo link + demo video (see `demo-script.md`).
+ANKIT NEGI
+PRINCE KUMAR 
+GOPAL NIHAL
 
 ---
 *Disclaimer: demo clinical rules are illustrative for a hackathon, not medical advice.*

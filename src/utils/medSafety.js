@@ -75,6 +75,7 @@ export function checkExistingCombo(currentMeds) {
 }
 
 // Duplicate-test guard: same lab name within `windowDays` → warn against repeat.
+import { labNumber } from './extract.js'
 const TEST_WINDOWS = {
   HbA1c: 90,
   TSH: 60,
@@ -89,7 +90,7 @@ export function findRecentSameTest(records, testName, refDateISO) {
   const ref = new Date(refDateISO).getTime()
   const candidates = []
   for (const r of records) {
-    if (r.type !== 'lab' || !r.labs || r.labs[testName] === undefined) continue
+    if (r.type !== 'lab' || !r.labs || labNumber(r.labs[testName]) === null) continue
     const t = new Date(r.date).getTime()
     const diffDays = Math.round((ref - t) / (1000 * 60 * 60 * 24))
     if (diffDays >= 0 && diffDays <= windowDays) {
@@ -98,25 +99,4 @@ export function findRecentSameTest(records, testName, refDateISO) {
   }
   candidates.sort((x, y) => x.diffDays - y.diffDays)
   return { windowDays, candidates }
-}
-
-export function simulateParse(filename, provider) {
-  // Simulated AI extraction — deterministic demo logic from filename keywords.
-  const f = (filename || '').toLowerCase()
-  let type = 'lab'
-  if (f.includes('presc') || f.includes('rx')) type = 'prescription'
-  else if (f.includes('scan') || f.includes('usg') || f.includes('xray') || f.includes('mri')) type = 'scan'
-  else if (f.includes('discharge') || f.includes('summary')) type = 'discharge'
-  const today = new Date().toISOString().slice(0, 10)
-  return {
-    type,
-    date: today,
-    provider: provider || 'Uploaded by patient',
-    confidence: 0.87,
-    extracted: type === 'lab'
-      ? 'Detected: HbA1c, Fasting Glucose, Creatinine panels'
-      : type === 'prescription'
-        ? 'Detected: 2 medicines + dosage lines'
-        : 'Detected: 1 document, 3 pages'
-  }
 }

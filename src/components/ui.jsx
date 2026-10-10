@@ -1,4 +1,6 @@
-import React, { useId } from 'react'
+import React, { useId, useState } from 'react'
+import { getFileDataUrl } from '../utils/blobStore.js'
+import { labNumber } from '../utils/extract.js'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -12,6 +14,62 @@ const TYPE_META = {
 
 function typeMeta(type) {
   return TYPE_META[type] || { label: type, k: 'k-note' }
+}
+
+/** Shows the attached original when it is on this device or carried in the link. */
+export function DocumentButton({ record }) {
+  const [url, setUrl] = useState(record.doc?.dataUrl || null)
+  const [open, setOpen] = useState(false)
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const hasLocal = !!record.fileId
+  const hasInline = !!record.doc?.dataUrl
+  if (!hasLocal && !hasInline && !record.docOmitted) return null
+
+  const view = async () => {
+    setErr('')
+    if (url) { setOpen((o) => !o); return }
+    if (!hasLocal) return
+    setBusy(true)
+    try {
+      const d = await getFileDataUrl(record.fileId)
+      if (!d) { setErr('That file is no longer stored in this browser.'); return }
+      setUrl(d)
+      setOpen(true)
+    } catch {
+      setErr('That file could not be opened.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const name = record.fileName || record.doc?.name || ''
+  const isPdfFile = /\.pdf$/i.test(name)
+
+  return (
+    <div className="entry-actions">
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <button className="btn quiet small" onClick={view} disabled={busy}>
+          {busy ? 'Opening…' : open ? 'Hide document' : 'View document'}
+        </button>
+        {url && (
+          <a className="btn quiet small" href={url} download={name || 'document'}>Download</a>
+        )}
+      </div>
+      {record.docOmitted && !hasInline && (
+        <p className="fineprint" style={{ marginTop: 8 }}>Original file not included — the extracted values were shared instead.</p>
+      )}
+      {err && <p className="fineprint" style={{ marginTop: 8, color: 'var(--stamp)' }}>{err}</p>}
+      {open && url && (
+        <div className="docview" style={{ marginTop: 12 }}>
+          {isPdfFile
+            ? <iframe src={url} title={name || 'Document'} />
+            : <img src={url} alt={record.title ? `Document for ${record.title}` : 'Document'} />}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function TimelineItem({ r, onView }) {
@@ -62,6 +120,8 @@ export function TimelineItem({ r, onView }) {
           </div>
         )}
 
+        <DocumentButton record={r} />
+
         {onView && (
           <div className="entry-actions">
             <button className="btn quiet small" onClick={() => onView(r)}>Open record</button>
@@ -77,7 +137,7 @@ export function TimelineItem({ r, onView }) {
 export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) {
   const gid = useId().replace(/:/g, '')
   const pts = records
-    .filter((r) => r.labs && r.labs[test] !== undefined)
+    .filter((r) => r.labs && labNumber(r.labs[test]) !== null)
     .slice()
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 
@@ -90,7 +150,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
   }
 
   const W = 560, H = 210, P = 38, PT = 30
-  const vals = pts.map((p) => Number(p.labs[test]))
+  const vals = pts.map((p) => labNumber(p.labs[test]))
   const lo = Math.min(...vals, target ?? Infinity)
   const hi = Math.max(...vals, target ?? -Infinity)
   const pad = Math.max((hi - lo) * 0.25, 0.4)
@@ -99,7 +159,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
 
   const x = (i) => P + (i * (W - 2 * P)) / Math.max(pts.length - 1, 1)
   const y = (v) => H - P - ((v - min) / span) * (H - P - PT)
-  const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(Number(p.labs[test]))}`).join(' ')
+  const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(vals[i])}`).join(' ')
   const improving = vals[vals.length - 1] < vals[0]
 
   return (
@@ -136,12 +196,12 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
 
         {pts.map((p, i) => (
           <g key={p.id}>
-            <rect x={x(i) - 3.5} y={y(Number(p.labs[test])) - 3.5} width="7" height="7" fill="var(--pen)" />
+            <rect x={x(i) - 3.5} y={y(vals[i]) - 3.5} width="7" height="7" fill="var(--pen)" />
             {/* label every value that changed, so flat runs don't stack text */}
-            {(i === 0 || p.labs[test] !== pts[i - 1].labs[test]) && (
+            {(i === 0 || String(p.labs[test]) !== String(pts[i - 1].labs[test])) && (
               <text
                 x={x(i)}
-                y={y(Number(p.labs[test])) - 13}
+                y={y(vals[i]) - 13}
                 textAnchor="middle"
                 fontFamily="var(--mono)"
                 fontSize="11.5"
