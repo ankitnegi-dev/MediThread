@@ -26,9 +26,9 @@
   --stamp:    #B23B48;
   --flag:     #9E6A08;
 
-  --serif: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  --sans:  'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono:  'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --serif: 'Source Serif 4', 'Noto Serif Devanagari', 'Noto Serif Tamil', 'Noto Serif Kannada', 'Iowan Old Style', Georgia, serif;
+  --sans:  'IBM Plex Sans', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Kannada', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:  'IBM Plex Mono', 'Noto Sans Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
   --shell: 1140px;
 }
@@ -47,6 +47,20 @@ body {
 
 h1, h2, h3, h4, h5, p, dl, dd, figure { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
+
+/* Devanagari, Tamil and Kannada need more vertical room than Latin —
+   without this the matras and vowel signs get clipped. */
+html[lang='hi'] body,
+html[lang='ta'] body,
+html[lang='kn'] body { line-height: 1.75; }
+
+html[lang='hi'] h1, html[lang='ta'] h1, html[lang='kn'] h1,
+html[lang='hi'] h2, html[lang='ta'] h2, html[lang='kn'] h2,
+html[lang='hi'] h3, html[lang='ta'] h3, html[lang='kn'] h3,
+html[lang='hi'] h4, html[lang='ta'] h4, html[lang='kn'] h4 { line-height: 1.4; }
+
+html[lang='hi'] .figures dd, html[lang='ta'] .figures dd, html[lang='kn'] .figures dd { line-height: 1.25; }
+html[lang='hi'] .entry-date .d, html[lang='ta'] .entry-date .d, html[lang='kn'] .entry-date .d { line-height: 1.3; }
 
 a { color: var(--thread); text-decoration-thickness: 1px; text-underline-offset: 2px; }
 a:hover { color: var(--thread-d); }
@@ -114,6 +128,32 @@ a:hover { color: var(--thread-d); }
   flex: none;
 }
 
+.binder-id {
+  font: 500 11.5px/1.3 var(--sans);
+  color: var(--ink-60);
+  white-space: nowrap;
+}
+
+.langpick select {
+  width: auto;
+  padding: 7px 26px 7px 10px;
+  font: 500 12.5px/1.2 var(--sans);
+  background: var(--sheet-2);
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .idchip {
   font: 500 11.5px/1 var(--mono);
   color: var(--ink-60);
@@ -122,6 +162,8 @@ a:hover { color: var(--thread-d); }
   padding: 7px 10px;
   white-space: nowrap;
 }
+
+/* removed — the patient chip is now plain text, see .binder-id */
 
 /* Index tabs — dividers in a folder. The open one merges
    into the sheet below it. */
@@ -647,20 +689,33 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
 .ercard {
   border: 2px solid var(--stamp);
   border-radius: 2px;
-  padding: 26px 28px;
+  padding: 24px 26px;
   background: var(--sheet);
 }
+
+.ercard-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .ercard h2 {
   font: 600 26px/1.15 var(--serif);
   margin-bottom: 4px;
 }
 .ercard .meta { margin-top: 6px; }
+
+.ercard .blood { text-align: right; }
 .ercard .big {
   font: 600 40px/1 var(--serif);
   letter-spacing: 0.06em;
-  margin: 14px 0 4px;
+  margin: 0 0 4px;
 }
+
 .ercard dl { display: grid; gap: 0; margin-top: 20px; }
+
 .ercard .rowline {
   display: flex;
   gap: 20px;
@@ -669,11 +724,111 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
   align-items: baseline;
 }
 .ercard .rowline dt {
-  flex: 0 0 118px;
+  flex: 0 0 128px;
   font: 500 11px/1.5 var(--mono);
   color: var(--ink-40);
 }
+.ercard .rowline dt .alt {
+  display: block;
+  color: var(--ink-40);
+  opacity: 0.75;
+  margin-top: 2px;
+}
 .ercard .rowline dd { flex: 1; font-size: 14px; line-height: 1.5; font-weight: 500; }
+
+/* Allergies is the row that must not be missed. */
+.ercard .rowline.critical {
+  border-left: 3px solid var(--stamp);
+  background: #fdf3f4;
+  margin-left: -10px;
+  padding-left: 12px;
+  padding-right: 10px;
+}
+.ercard .rowline.critical dt { color: var(--stamp); }
+
+.ercard .medline { display: grid; gap: 5px; }
+.ercard .medline li { font-size: 13.5px; line-height: 1.45; }
+.ercard .meds-row dt { align-self: flex-start; }
+
+.medline-plain { display: grid; gap: 4px; }
+
+.ercard-en {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.ercard-toggle { margin-top: 18px; }
+
+/* ------------------------------------------------------------
+   Clinician summary — the one page a clinician prints
+   ------------------------------------------------------------ */
+
+.summary {
+  border: 1px solid var(--rule);
+  background: var(--sheet);
+  padding: 22px 24px 26px;
+}
+
+.summary-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+}
+.summary-head h2 { font: 600 24px/1.15 var(--serif); }
+.summary-head .meta { margin-top: 6px; font-size: 13px; color: var(--ink-60); }
+
+.summary-alert {
+  margin-top: 16px;
+  border-left: 3px solid var(--stamp);
+  background: #fdf3f4;
+  padding: 11px 14px;
+}
+.summary-alert p {
+  margin-top: 4px;
+  font: 600 15px/1.4 var(--sans);
+  color: var(--stamp);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.summary-grid h3 {
+  font: 500 11px/1 var(--mono);
+  color: var(--ink-40);
+  margin-bottom: 6px;
+}
+.summary-grid p { font-size: 13.5px; line-height: 1.5; }
+
+.summary-h {
+  font: 600 12.5px/1.3 var(--sans);
+  color: var(--ink-80);
+  margin: 22px 0 10px;
+}
+
+.summary-meds li { font-size: 13.5px; line-height: 1.5; }
+
+.abn-list { display: grid; gap: 6px; }
+.abn-list li { font-size: 13.5px; line-height: 1.45; }
+
+.muted-line { font-size: 13px; color: var(--ink-60); }
+
+.summary-table td { font-size: 12.5px; }
+.summary-table td:first-child { white-space: nowrap; }
+
+@media (max-width: 620px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  .ercard .blood { text-align: left; }
+  .ercard .rowline { flex-direction: column; gap: 4px; }
+  .ercard .rowline dt { flex: none; }
+  .ercard .rowline.critical { margin-left: -8px; padding-left: 10px; }
+}
 
 .pinwrap { max-width: 400px; margin: 56px auto; text-align: left; }
 .pininput {
@@ -884,7 +1039,7 @@ code.inline {
   .entry h4 { font-size: 17px; }
   .labs { max-width: none; }
   .row { flex-direction: column; gap: 16px; }
-  .binder-actions .idchip { display: none; }
+  .binder-actions .idchip, .binder-id { display: none; }
   .binder-bar { gap: 12px; }
   .chart-head h1 { font-size: 27px; }
   .chart-head { gap: 20px 0; }

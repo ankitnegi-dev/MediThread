@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TimelineItem } from '../components/ui.jsx'
+import { EmergencyCard } from '../components/EmergencyCard.jsx'
+import { ClinicianSummary } from '../components/ClinicianSummary.jsx'
 import { validateShareToken, makeNoteCode, REVOCATION_CAVEAT } from '../utils/share.js'
 import { addAudit } from '../utils/store.js'
 import { checkInteractions } from '../utils/medSafety.js'
+import { useT } from '../i18n/index.jsx'
 
 export function Doctor({ state, setState }) {
+  const t = useT()
   const [code, setCode] = useState('')
   const [result, setResult] = useState(null)
   const [newNote, setNewNote] = useState({ title: '', notes: '', type: 'prescription' })
@@ -20,7 +24,7 @@ export function Doctor({ state, setState }) {
     const v = validateShareToken(token, state)
     if (!v.ok) { setResult(v); setNoteCode(''); return }
 
-    // Count the open only when this browser holds the issuing registry.
+    // Only count the open where this browser holds the issuing registry.
     if (!v.external) {
       const next = { ...state, shares: state.shares.map((s) => (s.id === v.share.id ? { ...s, accesses: s.accesses + 1 } : s)) }
       addAudit(next, `Doctor opened share: ${v.share.label}`)
@@ -30,7 +34,7 @@ export function Doctor({ state, setState }) {
   }
 
   const buildNote = () => {
-    if (!newNote.title) { alert('Add a title.'); return }
+    if (!newNote.title) { alert(t('err.titleRequired')); return }
     const rec = {
       id: `rec-${Math.random().toString(36).slice(2, 8)}`,
       type: newNote.type,
@@ -42,87 +46,74 @@ export function Doctor({ state, setState }) {
       source: 'Added by doctor through MediThread'
     }
     setNoteCode(makeNoteCode(rec, rec.provider))
-    flash('Note code ready')
+    flash(t('toast.noteReady'))
   }
 
   const copyNote = async () => {
-    try { await navigator.clipboard.writeText(noteCode); flash('Note code copied') }
-    catch { flash('Copy failed — select the code and copy it manually') }
+    try { await navigator.clipboard.writeText(noteCode); flash(t('toast.noteCopied')) }
+    catch { flash(t('toast.copyFailed')) }
   }
+
+  const liveShares = state.shares.filter((s) => !s.revoked && new Date(s.expiresAt) > new Date()).length
+  const views = state.shares.reduce((n, s) => n + s.accesses, 0)
 
   return (
     <div>
       <header className="chart-head">
         <div>
-          <p className="kicker">Clinician access</p>
-          <h1>Doctor</h1>
-          <p className="meta">
-            Paste a share link to open exactly the records the patient chose, until the link expires.
-            The records travel inside the link, so this works on a clinic machine that has never
-            seen MediThread.
-          </p>
+          <p className="kicker">{t('doc.openHint')}</p>
+          <h1>{t('nav.doctor')}</h1>
+          <p className="meta">{t('share.readyBody')}</p>
         </div>
         <dl className="figures">
-          <div>
-            <dt>Shares given</dt>
-            <dd>{state.shares.length}</dd>
-            <p>{state.shares.filter((s) => !s.revoked && new Date(s.expiresAt) > new Date()).length} still live</p>
-          </div>
-          <div>
-            <dt>Views logged</dt>
-            <dd>{state.shares.reduce((n, s) => n + s.accesses, 0)}</dd>
-            <p>counted per share</p>
-          </div>
+          <div><dt>{t('share.listTitle')}</dt><dd>{state.shares.length}</dd><p>{liveShares} {t('share.stLive').toLowerCase()}</p></div>
+          <div><dt>{t('share.colViews')}</dt><dd>{views}</dd><p>{t('share.accessLog').toLowerCase()}</p></div>
         </dl>
       </header>
 
       <div style={{ marginTop: 30 }}>
         <section className="panel">
           <div className="panel-head">
-            <h2>Open a share</h2>
-            <span className="hint">paste link or code</span>
+            <h2>{t('doc.open')}</h2>
+            <span className="hint">{t('doc.openHint')}</span>
           </div>
           <div className="panel-pad">
             <div className="row">
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="Paste the patient&rsquo;s share link"
-                aria-label="Share link or token"
+                placeholder={t('common.pasteLink')}
+                aria-label={t('doc.openHint')}
               />
-              <button className="btn" style={{ flex: '0 0 auto' }} onClick={open} disabled={!code.trim()}>Open records</button>
+              <button className="btn" style={{ flex: '0 0 auto' }} onClick={open} disabled={!code.trim()}>{t('doc.openBtn')}</button>
             </div>
 
             {result && !result.ok && (
-              <div className="notice crit" style={{ marginTop: 16 }}>
-                <span className="lead">Cannot open</span>
+              <div className="notice crit" style={{ marginTop: 16 }} role="alert">
+                <span className="lead">{t('doc.cannotOpen')}</span>
                 {result.message}
               </div>
             )}
 
-            <p className="fineprint">
-              For the demo: create a link in the Patient tab and paste it here. The emergency view at{' '}
-              <a href="#/emergency">#/emergency</a> is PIN-gated and needs no share.
-            </p>
+            <p className="fineprint">{t('doc.demoHint')}</p>
           </div>
         </section>
 
         {result?.ok && (
           <div style={{ marginTop: 30 }}>
             <div className={`notice ${result.external ? 'flag' : 'ok'}`} style={{ marginBottom: 26 }}>
-              <span className="lead">{result.external ? 'Opened from another device' : 'Share verified'}</span>
-              <b>{result.share.label}</b> — {result.records.length} records, expires{' '}
-              {new Date(result.share.expiresAt).toLocaleString()}.
+              <span className="lead">{result.external ? t('doc.external') : t('doc.verified')}</span>
+              <b>{result.share.label}</b> —{' '}
               {result.external
-                ? ' This device has no copy of the patient’s share list, so a revocation cannot be checked here.'
-                : ' The open has been logged on the patient’s chart.'}
+                ? t('doc.externalBody')
+                : t('doc.verifiedBody', { n: result.records.length, when: new Date(result.share.expiresAt).toLocaleString() })}
             </div>
 
-            <PatientSummary patient={result.patient} />
+            <ClinicianSummary patient={result.patient} records={result.records} />
 
             <h2 className="sec-title" style={{ marginTop: 30 }}>
-              Shared records
-              <span className="hint">newest first</span>
+              {t('doc.whatShared')}
+              <span className="hint">{t('common.newestFirst')}</span>
             </h2>
             <div className="spine">
               {result.records.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
@@ -132,61 +123,57 @@ export function Doctor({ state, setState }) {
 
             <section className="panel" style={{ marginTop: 30 }}>
               <div className="panel-head">
-                <h2>Write back to the patient</h2>
-                <span className="hint">produces a note code</span>
+                <h2>{t('doc.writeBack')}</h2>
+                <span className="hint">{t('doc.writeBackHint')}</span>
               </div>
               <div className="panel-pad">
-                <p className="fineprint" style={{ marginTop: 0 }}>
-                  MediThread has no server, so a note cannot be pushed into the patient&rsquo;s chart
-                  from here. Build the note, then send the patient the code — they paste it into
-                  Patient &rsaquo; Sharing &rsaquo; Receive a note.
-                </p>
+                <p className="fineprint" style={{ marginTop: 0 }}>{t('doc.writeBackBody')}</p>
 
                 <div className="row">
                   <div>
-                    <label htmlFor="d-type">Type</label>
+                    <label htmlFor="d-type">{t('upload.type')}</label>
                     <select id="d-type" value={newNote.type} onChange={(e) => setNewNote({ ...newNote, type: e.target.value })}>
-                      <option value="prescription">Prescription</option>
-                      <option value="lab">Lab order</option>
-                      <option value="note">Note</option>
+                      <option value="prescription">{t('type.prescription')}</option>
+                      <option value="lab">{t('type.lab')}</option>
+                      <option value="note">{t('type.note')}</option>
                     </select>
                   </div>
                   <div style={{ flex: 2 }}>
-                    <label htmlFor="d-title">Title</label>
+                    <label htmlFor="d-title">{t('doc.noteTitle')}</label>
                     <input id="d-title" value={newNote.title} onChange={(e) => setNewNote({ ...newNote, title: e.target.value })} placeholder="Paracetamol 650mg SOS" />
                   </div>
                 </div>
 
                 <div className="field">
-                  <label htmlFor="d-notes">Notes</label>
-                  <textarea id="d-notes" value={newNote.notes} onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })} placeholder="Advice, dosage, follow-up." />
+                  <label htmlFor="d-notes">{t('upload.notes')}</label>
+                  <textarea id="d-notes" value={newNote.notes} onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })} />
                 </div>
 
                 {newNote.title && (() => {
                   const hits = checkInteractions(result.patient.currentMeds || [], newNote.title.split(' ')[0])
                   return hits.length ? (
                     <div className="notice crit" style={{ marginTop: 16 }}>
-                      <span className="lead">Interaction with their current medicines</span>
+                      <span className="lead">{t('doc.interaction')}</span>
                       {hits.map((h) => h.msg).join(' ')}
                     </div>
                   ) : (
                     <div className="notice ok" style={{ marginTop: 16 }}>
-                      <span className="lead">Clear</span>
-                      No known interaction with their current medicines.
+                      <span className="lead">{t('doc.clear')}</span>
+                      {t('doc.clearBody')}
                     </div>
                   )
                 })()}
 
                 <div className="btn-row">
-                  <button className="btn" onClick={buildNote} disabled={!newNote.title}>Build note code</button>
+                  <button className="btn" onClick={buildNote} disabled={!newNote.title}>{t('doc.buildNote')}</button>
                 </div>
 
                 {noteCode && (
                   <div className="notice ok" style={{ marginTop: 18 }}>
-                    <span className="lead">Send this to the patient</span>
+                    <span className="lead">{t('doc.noteReady')}</span>
                     <span className="mono-hint wordwrap" style={{ display: 'block', color: 'var(--ink-80)', marginTop: 8 }}>{noteCode}</span>
                     <div className="btn-row" style={{ marginTop: 12 }}>
-                      <button className="btn quiet small" onClick={copyNote}>Copy note code</button>
+                      <button className="btn quiet small" onClick={copyNote}>{t('doc.copyNote')}</button>
                     </div>
                   </div>
                 )}
@@ -197,15 +184,12 @@ export function Doctor({ state, setState }) {
 
         {!result && (
           <section className="panel" style={{ marginTop: 30 }}>
-            <div className="panel-head"><h2>Consent simulation</h2></div>
+            <div className="panel-head"><h2>{t('doc.consentTitle')}</h2></div>
             <div className="panel-pad">
-              <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)' }}>
-                In production this screen shows nothing until a patient shares. It is visible here so a
-                judge can walk the whole flow from one browser.
-              </p>
-              <PatientSummary patient={state.patient} />
+              <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)', marginBottom: 18 }}>{t('doc.consentBody')}</p>
+              <ClinicianSummary patient={state.patient} records={state.records} />
               <div className="btn-row">
-                <button className="btn quiet" onClick={() => nav('/')}>Back to the patient chart</button>
+                <button className="btn quiet" onClick={() => nav('/')}>{t('doc.backToChart')}</button>
               </div>
             </div>
           </section>
@@ -218,26 +202,31 @@ export function Doctor({ state, setState }) {
 }
 
 export function PatientSummary({ patient }) {
+  const t = useT()
   const p = patient
   return (
     <div className="panel">
-      <div className="panel-head"><h2>Before you start</h2></div>
+      <div className="panel-head"><h2>{t('doc.summary')}</h2></div>
       <div className="panel-pad">
         <dl className="deflist">
           <div>
-            <dt>Patient</dt>
-            <dd><b>{p.name}</b>, {p.age}, {p.sex}. Blood {p.bloodGroup}. {p.city}. {p.conditions.join(', ')}.</dd>
+            <dt>{t('doc.patient')}</dt>
+            <dd><b>{p.name}</b>, {p.age}, {p.sex}. {t('chart.blood', { group: p.bloodGroup })}. {p.city}. {p.conditions.join(', ')}.</dd>
           </div>
           <div>
-            <dt>Allergies</dt>
+            <dt>{t('er.allergies')}</dt>
             <dd><b>{p.allergies.join(', ')}</b></dd>
           </div>
           <div>
-            <dt>Current medicines</dt>
-            <dd>{p.currentMeds.map((m) => `${m.name} ${m.dose}, ${m.freq}`).join(' · ')}</dd>
+            <dt>{t('doc.medsNow')}</dt>
+            <dd className="medline-plain">
+              {p.currentMeds.map((m) => (
+                <div key={m.name}>{m.name} {m.dose} <span className="mono-hint">{m.freq}</span></div>
+              ))}
+            </dd>
           </div>
           <div>
-            <dt>Emergency contact</dt>
+            <dt>{t('doc.emergencyContact')}</dt>
             <dd>{p.emergencyContact}</dd>
           </div>
         </dl>
@@ -247,6 +236,7 @@ export function PatientSummary({ patient }) {
 }
 
 export function Shared({ state, setState }) {
+  const t = useT()
   const { token } = useParams()
   const v = validateShareToken(token, state)
 
@@ -264,17 +254,17 @@ export function Shared({ state, setState }) {
   if (!v.ok) {
     return (
       <div style={{ maxWidth: 560, margin: '56px auto' }}>
-        <p className="kicker">Shared records</p>
-        <h1 style={{ font: '600 32px/1.1 var(--serif)', marginBottom: 18 }}>This link does not open</h1>
-        <div className="notice crit">
-          <span className="lead">Reason</span>
+        <p className="kicker">{t('doc.open')}</p>
+        <h1 style={{ font: '600 32px/1.1 var(--serif)', marginBottom: 18 }}>{t('doc.doesNotOpen')}</h1>
+        <div className="notice crit" role="alert">
+          <span className="lead">{t('doc.reason')}</span>
           {v.message}
         </div>
         <div className="notice flag" style={{ marginTop: 10 }}>
-          <span className="lead">About revocation</span>
+          <span className="lead">{t('share.revokeTitle')}</span>
           {REVOCATION_CAVEAT}
         </div>
-        <div className="btn-row"><a className="btn quiet" href="#/">Go to MediThread</a></div>
+        <div className="btn-row"><a className="btn quiet" href="#/">{t('doc.goToApp')}</a></div>
       </div>
     )
   }
@@ -283,11 +273,10 @@ export function Shared({ state, setState }) {
     <div>
       <header className="chart-head">
         <div>
-          <p className="kicker">Shared by {v.patient.name}</p>
+          <p className="kicker">{t('doc.sharedBy', { name: v.patient.name })}</p>
           <h1>{v.share.label}</h1>
           <p className="meta">
-            {v.records.length} records. Expires {new Date(v.share.expiresAt).toLocaleString()}.
-            Read only.
+            {v.records.length} · {new Date(v.share.expiresAt).toLocaleString()} · {t('common.readOnly')}
           </p>
         </div>
       </header>
@@ -295,16 +284,16 @@ export function Shared({ state, setState }) {
       <div style={{ marginTop: 30 }}>
         {v.external && (
           <div className="notice flag" style={{ marginBottom: 22 }}>
-            <span className="lead">Opened on a device with no MediThread data</span>
-            The records came from inside the link itself. {REVOCATION_CAVEAT}
+            <span className="lead">{t('doc.external')}</span>
+            {t('doc.externalBody')}
           </div>
         )}
 
-        <PatientSummary patient={v.patient} />
+        <ClinicianSummary patient={v.patient} records={v.records} />
 
         <h2 className="sec-title" style={{ marginTop: 30 }}>
-          What was shared
-          <span className="hint">{v.records.length} records</span>
+          {t('doc.whatShared')}
+          <span className="hint">{v.records.length}</span>
         </h2>
         <div className="spine">
           {v.records.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
@@ -317,6 +306,7 @@ export function Shared({ state, setState }) {
 }
 
 export function Emergency({ state, setState }) {
+  const t = useT()
   const [pin, setPin] = useState('')
   const [unlocked, setUnlocked] = useState(false)
   const [tries, setTries] = useState(0)
@@ -337,11 +327,7 @@ export function Emergency({ state, setState }) {
     const n = tries + 1
     setTries(n)
     setPin('')
-    setErr(
-      n >= LOCKOUT_AT
-        ? `That PIN does not match. ${LOCKOUT_AT} failed attempts — reload the page to try again.`
-        : `That PIN does not match. ${LOCKOUT_AT - n} attempt${LOCKOUT_AT - n === 1 ? '' : 's'} left before this device is locked out.`
-    )
+    setErr(n >= LOCKOUT_AT ? t('er.locked') : t('er.wrongPin', { n: LOCKOUT_AT - n }))
   }
 
   const locked = tries >= LOCKOUT_AT
@@ -349,12 +335,10 @@ export function Emergency({ state, setState }) {
   if (!unlocked) {
     return (
       <div className="pinwrap">
-        <p className="kicker" style={{ color: 'var(--stamp)' }}>For first responders</p>
-        <h1 style={{ font: '600 32px/1.12 var(--serif)', marginBottom: 12 }}>Emergency access</h1>
-        <p className="meta" style={{ marginBottom: 24 }}>
-          Enter the four-digit PIN on the patient&rsquo;s card. No login, read only.
-        </p>
-        <label htmlFor="pin">Patient PIN</label>
+        <p className="kicker" style={{ color: 'var(--stamp)' }}>{t('er.forResponders')}</p>
+        <h1 style={{ font: '600 32px/1.12 var(--serif)', marginBottom: 12 }}>{t('er.access')}</h1>
+        <p className="meta" style={{ marginBottom: 24 }}>{t('er.accessBody')}</p>
+        <label htmlFor="pin">{t('er.pinLabel')}</label>
         <input
           id="pin"
           className="pininput"
@@ -369,43 +353,31 @@ export function Emergency({ state, setState }) {
         />
         {err && (
           <div className="notice crit" style={{ marginTop: 14 }} role="alert">
-            <span className="lead">Not unlocked</span>{err}
+            <span className="lead">{t('er.notUnlocked')}</span>{err}
           </div>
         )}
         <div className="btn-row">
-          <button className="btn" onClick={tryUnlock} disabled={pin.length !== 4 || locked}>Unlock</button>
-          <a className="btn quiet" href="#/">Go back</a>
+          <button className="btn" onClick={tryUnlock} disabled={pin.length !== 4 || locked}>{t('er.unlock')}</button>
+          <a className="btn quiet" href="#/">{t('er.goBack')}</a>
         </div>
-        <p className="fineprint">The demo PIN is <code className="inline">{p.emergencyPin}</code>.</p>
+        <p className="fineprint">{t('er.demoPin', { pin: p.emergencyPin })}</p>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="ercard">
-        <p className="kicker" style={{ color: 'var(--stamp)' }}>Critical information</p>
-        <h2>{p.name}</h2>
-        <p className="meta">{p.age} years, {p.sex}. {p.city}.</p>
-        <p className="big">{p.bloodGroup}</p>
-        <p className="mono-hint">blood group</p>
-        <dl>
-          <div className="rowline"><dt>Conditions</dt><dd>{p.conditions.join(', ')}</dd></div>
-          <div className="rowline"><dt>Allergies</dt><dd><b>{p.allergies.join(', ')}</b></dd></div>
-          <div className="rowline"><dt>Medicines</dt><dd>{p.currentMeds.map((m) => `${m.name} ${m.dose} (${m.freq})`).join(' · ')}</dd></div>
-          <div className="rowline"><dt>Contact</dt><dd>{p.emergencyContact}</dd></div>
-        </dl>
-      </div>
+      <EmergencyCard patient={p} />
 
       <h2 className="sec-title" style={{ marginTop: 34 }}>
-        Recent history
-        <span className="hint">read only</span>
+        {t('er.recent')}
+        <span className="hint">{t('common.readOnly')}</span>
       </h2>
       <div className="spine">
         {latest.map((r) => <TimelineItem key={r.id} r={r} />)}
       </div>
 
-      <div className="btn-row"><a className="btn quiet" href="#/">Lock and leave</a></div>
+      <div className="btn-row"><a className="btn quiet" href="#/">{t('er.lock')}</a></div>
     </div>
   )
 }

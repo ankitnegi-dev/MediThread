@@ -6,18 +6,21 @@ import { putFile, getFileDataUrl } from '../utils/blobStore.js'
 import { addAudit } from '../utils/store.js'
 import { expiryOptions, makeShareToken, decodeNoteCode, REVOCATION_CAVEAT } from '../utils/share.js'
 import { QRCodeSVG } from 'qrcode.react'
+import { useT, useLang } from '../i18n/index.jsx'
+import { EmergencyCard } from '../components/EmergencyCard.jsx'
 
 const uid = (p) => `${p}-${Math.random().toString(36).slice(2, 8)}`
 
 const SECTIONS = [
-  { key: 'timeline', label: 'Timeline' },
-  { key: 'meds', label: 'Medicines' },
-  { key: 'share', label: 'Sharing' },
-  { key: 'emergency', label: 'Emergency card' },
-  { key: 'upload', label: 'Add record' }
+  { key: 'timeline', labelKey: 'tab.timeline' },
+  { key: 'meds', labelKey: 'tab.meds' },
+  { key: 'share', labelKey: 'tab.share' },
+  { key: 'emergency', labelKey: 'tab.emergency' },
+  { key: 'upload', labelKey: 'tab.upload' }
 ]
 
 export default function Patient({ state, setState }) {
+  const t = useT()
   const [tab, setTab] = useState('timeline')
   const [query, setQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
@@ -44,37 +47,37 @@ export default function Patient({ state, setState }) {
     <div>
       <header className="chart-head">
         <div>
-          <p className="kicker">Patient chart</p>
+          <p className="kicker">{t('chart.kicker')}</p>
           <h1>{p.name}</h1>
           <p className="meta">
-            {p.age} years, {p.sex}. Blood {p.bloodGroup}. {p.city}.<br />
+            {t('chart.age', { age: p.age, sex: p.sex })}. {t('chart.blood', { group: p.bloodGroup })}. {p.city}.<br />
             {p.conditions.join(', ')}.
           </p>
         </div>
 
         <dl className="figures">
           <div>
-            <dt>Records</dt>
+            <dt>{t('chart.records')}</dt>
             <dd>{state.records.length}</dd>
-            <p>{providers} providers, one chart</p>
+            <p>{t('chart.recordsSub', { n: providers })}</p>
           </div>
           <div>
-            <dt>Medicines</dt>
+            <dt>{t('chart.medicines')}</dt>
             <dd>{p.currentMeds.length}</dd>
-            <p>{p.conditions.length} conditions tracked</p>
+            <p>{t('chart.medicinesSub', { n: p.conditions.length })}</p>
           </div>
           <div>
-            <dt>Live shares</dt>
+            <dt>{t('chart.shares')}</dt>
             <dd>{liveShares}</dd>
-            <p>Expiring, revocable, logged</p>
+            <p>{t('chart.sharesSub')}</p>
           </div>
         </dl>
       </header>
 
-      <nav className="filters" style={{ marginTop: 30 }} aria-label="Chart sections">
+      <nav className="filters" style={{ marginTop: 30 }} aria-label={t('chart.kicker')}>
         {SECTIONS.map((s) => (
           <button key={s.key} aria-pressed={tab === s.key} onClick={() => setTab(s.key)}>
-            {s.label}
+            {t(s.labelKey)}
           </button>
         ))}
       </nav>
@@ -87,7 +90,7 @@ export default function Patient({ state, setState }) {
                 <section className="panel" style={{ marginBottom: 26 }}>
                   <div className="panel-head">
                     <h3>{selected.title}</h3>
-                    <button className="btn quiet small" onClick={() => setSelected(null)}>Close</button>
+                    <button className="btn quiet small" onClick={() => setSelected(null)}>{t('common.close')}</button>
                   </div>
                   <div className="panel-pad">
                     <p className="mono-hint">{selected.date} — {selected.provider}</p>
@@ -98,30 +101,30 @@ export default function Patient({ state, setState }) {
 
               <div className="row" style={{ marginBottom: 22 }}>
                 <input
-                  placeholder="Search the chart — diagnoses, providers, notes"
+                  placeholder={t('timeline.searchPh')}
+                  aria-label={t('timeline.searchLabel')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search the chart"
                 />
               </div>
 
               <div className="filters" style={{ marginBottom: 8 }}>
-                {['all', 'lab', 'prescription', 'scan', 'discharge'].map((t) => (
-                  <button key={t} aria-pressed={typeFilter === t} onClick={() => setTypeFilter(t)}>
-                    {t === 'all' ? 'Everything' : t[0].toUpperCase() + t.slice(1)}
+                {['all', 'lab', 'prescription', 'scan', 'discharge'].map((x) => (
+                  <button key={x} aria-pressed={typeFilter === x} onClick={() => setTypeFilter(x)}>
+                    {x === 'all' ? t('typeFilter.all') : t(`type.${x}`)}
                   </button>
                 ))}
               </div>
 
               <h2 className="sec-title" style={{ marginTop: 22 }}>
-                The thread
-                <span className="hint">{filtered.length} of {state.records.length} records</span>
+                {t('timeline.title')}
+                <span className="hint">{t('timeline.count', { shown: filtered.length, total: state.records.length })}</span>
               </h2>
 
               {filtered.length === 0 ? (
                 <div className="notice flag">
-                  <span className="lead">Nothing matches</span>
-                  No record matches that search. Clear the search or switch the type filter.
+                  <span className="lead">{t('timeline.emptyTitle')}</span>
+                  {t('timeline.emptyBody')}
                 </div>
               ) : (
                 <div className="spine">
@@ -135,8 +138,8 @@ export default function Patient({ state, setState }) {
             <div className="stack-tight">
               <section className="panel">
                 <div className="panel-head">
-                  <h2>Lab trends</h2>
-                  <span className="hint">no repeat needed</span>
+                  <h2>{t('labs.title')}</h2>
+                  <span className="hint">{t('labs.hint')}</span>
                 </div>
                 <div className="panel-pad">
                   <LabChart records={state.records} test="HbA1c" target={7} unit="%" />
@@ -147,29 +150,15 @@ export default function Patient({ state, setState }) {
               </section>
 
               <section className="panel">
-                <div className="panel-head"><h2>What this demo shows</h2></div>
+                <div className="panel-head"><h2>{t('demo.title')}</h2></div>
                 <div className="panel-pad">
                   <dl className="deflist">
-                    <div>
-                      <dt>Lost in transit</dt>
-                      <dd>Paper slips, PDFs and photos from ten different providers end up in one searchable chart.</dd>
-                    </div>
-                    <div>
-                      <dt>Recall failure</dt>
-                      <dd>A medicine list and an emergency card are generated from the chart, not from memory.</dd>
-                    </div>
-                    <div>
-                      <dt>Repeated tests</dt>
-                      <dd>A per-test window flags a result you already have before it is ordered again.</dd>
-                    </div>
-                    <div>
-                      <dt>Insecure forwarding</dt>
-                      <dd>Shares expire, can be revoked, and every view is written to the audit trail.</dd>
-                    </div>
+                    <div><dt>{t('demo.lost')}</dt><dd>{t('demo.lostBody')}</dd></div>
+                    <div><dt>{t('demo.recall')}</dt><dd>{t('demo.recallBody')}</dd></div>
+                    <div><dt>{t('demo.repeats')}</dt><dd>{t('demo.repeatsBody')}</dd></div>
+                    <div><dt>{t('demo.insecure')}</dt><dd>{t('demo.insecureBody')}</dd></div>
                   </dl>
-                  <p className="fineprint">
-                    Built for the IIITDM HealthTech brief, &ldquo;Lost in Transit&rdquo;.
-                  </p>
+                  <p className="fineprint">{t('demo.note')}</p>
                 </div>
               </section>
             </div>
@@ -195,6 +184,7 @@ const emptyForm = () => ({
 })
 
 function UploadTab({ state, update }) {
+  const t = useT()
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState(null)
@@ -203,7 +193,6 @@ function UploadTab({ state, update }) {
   const [form, setForm] = useState(emptyForm)
   const [meds, setMeds] = useState([])
   const [dupWarn, setDupWarn] = useState(null)
-  const [medWarn, setMedWarn] = useState([])
   const [toast, setToast] = useState('')
   const [dragging, setDragging] = useState(false)
   const inputRef = React.useRef(null)
@@ -214,16 +203,10 @@ function UploadTab({ state, update }) {
     setError('')
     const v = validateFile(f)
     if (!v.ok) { setError(v.error); setFile(null); return }
-    setFile(f)
-    setDraft(null)
-    setDupWarn(null)
-    setMedWarn([])
-    setForm({ ...emptyForm(), fileName: f.name, provider: form.provider })
+    setFile(f); setDraft(null); setDupWarn(null)
+    setForm((cur) => ({ ...emptyForm(), fileName: f.name, provider: cur.provider }))
     setPreview(isImage(f) ? URL.createObjectURL(f) : null)
-    if (isPdf(f)) {
-      const data = await pdfPreview(f)
-      setPreview(data)
-    }
+    if (isPdf(f)) setPreview(await pdfPreview(f))
   }
 
   const onDrop = (e) => {
@@ -233,6 +216,16 @@ function UploadTab({ state, update }) {
     if (f) acceptFile(f)
   }
 
+  const checkDuplicates = (labs, date) => {
+    const hits = []
+    for (const test of Object.keys(labs || {})) {
+      if (!String(labs[test]).trim()) continue
+      const res = findRecentSameTest(state.records, test, date)
+      if (res.candidates.length) hits.push({ test, ...res })
+    }
+    setDupWarn(hits.length ? hits : null)
+  }
+
   const runExtract = async () => {
     if (!file) return
     setError('')
@@ -240,42 +233,25 @@ function UploadTab({ state, update }) {
     const out = await extractText(file, (status, progress) => setBusy({ status, progress }))
     setBusy(null)
 
-    if (out.error) {
-      setError(out.error)
-      setDraft(null)
-      setForm((f) => ({ ...f, notes: '' }))
-      return
-    }
+    if (out.error) { setError(out.error); setDraft(null); return }
 
     const parsed = parseDocument(out.text, file.name)
-    setDraft({ ...parsed, method: out.method, confidence: out.confidence, raw: out.text })
+    setDraft({ ...parsed, method: out.method, confidence: out.confidence })
     setMeds(parsed.meds)
-    setForm((f) => ({
-      ...f,
+    setForm((cur) => ({
+      ...cur,
       type: parsed.type,
       date: parsed.date,
-      provider: parsed.provider || f.provider,
+      provider: parsed.provider || cur.provider,
       title: parsed.title,
       notes: parsed.ok ? `Extracted from ${file.name} (${out.method === 'ocr' ? 'OCR' : 'PDF text layer'}).` : ''
     }))
-
-    if (!parsed.ok) {
-      setError('We could not read any values out of that file. Fill the form in yourself — everything below is editable.')
-    }
+    if (!parsed.ok) setError(t('upload.errNoValues'))
     checkDuplicates(parsed.labs, parsed.date)
   }
 
-  const checkDuplicates = (labs, date) => {
-    const hits = []
-    for (const test of Object.keys(labs || {})) {
-      const res = findRecentSameTest(state.records, test, date)
-      if (res.candidates.length) hits.push({ test, ...res })
-    }
-    setDupWarn(hits.length ? hits : null)
-  }
-
   const onSave = async () => {
-    if (!form.title.trim()) { setError('Give the record a title before saving.'); return }
+    if (!form.title.trim()) { setError(t('upload.needTitle')); return }
     setError('')
 
     let fileMeta = null
@@ -283,14 +259,12 @@ function UploadTab({ state, update }) {
       try {
         fileMeta = await putFile(file)
       } catch (e) {
-        setError('The file could not be stored in this browser, so it was not saved. ' + (e.message || ''))
+        setError(`${t('upload.errStore')} ${e.message || ''}`)
         return
       }
     }
 
-    const labs = Object.fromEntries(
-      Object.entries(draft?.labs || {}).filter(([, v]) => String(v).trim() !== '')
-    )
+    const labs = Object.fromEntries(Object.entries(draft?.labs || {}).filter(([, v]) => String(v).trim() !== ''))
 
     const rec = {
       id: uid('rec'),
@@ -312,25 +286,28 @@ function UploadTab({ state, update }) {
     addAudit(next, `Added record: ${rec.title} (${rec.type}, ${rec.date})`)
     update(next)
 
-    setFile(null); setPreview(null); setDraft(null); setMeds([]); setDupWarn(null); setMedWarn([])
+    setFile(null); setPreview(null); setDraft(null); setMeds([]); setDupWarn([]); setError('')
     setForm(emptyForm())
-    flash('Saved to your timeline')
+    if (inputRef.current) inputRef.current.value = ''
+    flash(t('toast.saved'))
   }
 
   const resetAll = () => {
-    setFile(null); setPreview(null); setDraft(null); setMeds([]); setError('')
-    setDupWarn(null); setMedWarn([]); setForm(emptyForm())
+    setFile(null); setPreview(null); setDraft(null); setMeds([]); setError(''); setDupWarn(null)
+    setForm(emptyForm())
     if (inputRef.current) inputRef.current.value = ''
   }
 
   const fmtSize = (n) => (n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / (1024 * 1024)).toFixed(1)} MB`)
 
+  const medHits = meds.flatMap((m) => checkInteractions(state.patient.currentMeds, m.name).map((h) => `${m.name}: ${h.msg}`))
+
   return (
     <div className="stack split">
       <section className="panel">
         <div className="panel-head">
-          <h2>Add a record</h2>
-          <span className="hint">pdf or photo</span>
+          <h2>{t('upload.title')}</h2>
+          <span className="hint">{t('upload.hint')}</span>
         </div>
         <div className="panel-pad">
           {!file ? (
@@ -346,26 +323,28 @@ function UploadTab({ state, update }) {
                 accept={acceptAttr}
                 className="dropzone-input"
                 onChange={(e) => e.target.files?.[0] && acceptFile(e.target.files[0])}
-                aria-label="Choose a PDF, JPG, PNG or WEBP file"
+                aria-label={t('upload.drop')}
               />
-              <p className="dropzone-title">Drop a file here, or choose one</p>
-              <p className="fineprint" style={{ marginTop: 6 }}>
-                PDF, JPG, PNG or WEBP. Up to 10 MB. The file stays on this device — nothing is uploaded to a server.
-              </p>
+              <p className="dropzone-title">{t('upload.drop')}</p>
+              <p className="fineprint" style={{ marginTop: 6 }}>{t('upload.dropBody')}</p>
             </div>
           ) : (
             <div className="filepick">
-              {preview ? <img src={preview} alt="" className="filepick-thumb" /> : <div className="filepick-thumb placeholder" aria-hidden="true" />}
+              {preview
+                ? <img src={preview} alt="" className="filepick-thumb" />
+                : <div className="filepick-thumb placeholder" aria-hidden="true" />}
               <div className="filepick-meta">
                 <p className="filepick-name">{file.name}</p>
-                <p className="mono-hint">{fmtSize(file.size)}{draft?.method ? ` · read via ${draft.method === 'ocr' ? 'OCR' : 'PDF text'}` : ''}</p>
+                <p className="mono-hint">
+                  {fmtSize(file.size)}{draft?.method ? ` · ${draft.method === 'ocr' ? 'OCR' : 'PDF text'}` : ''}
+                </p>
                 <div className="btn-row" style={{ marginTop: 10 }}>
                   {!draft && (
                     <button className="btn small" onClick={runExtract} disabled={!!busy}>
-                      {busy ? 'Reading…' : 'Read this document'}
+                      {busy ? t('upload.reading') : t('upload.read')}
                     </button>
                   )}
-                  <button className="btn quiet small" onClick={resetAll}>Remove</button>
+                  <button className="btn quiet small" onClick={resetAll}>{t('upload.remove')}</button>
                 </div>
               </div>
             </div>
@@ -377,65 +356,63 @@ function UploadTab({ state, update }) {
                 <span className="mono-hint">{busy.status}</span>
                 <span className="mono-hint">{Math.round((busy.progress || 0) * 100)}%</span>
               </div>
-              <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.max(4, (busy.progress || 0) * 100)}%` }} /></div>
-              <p className="fineprint" style={{ marginTop: 8 }}>
-                First run downloads the OCR language packs (English, हिन्दी, தமிழ்). After that it works offline.
-              </p>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${Math.max(4, (busy.progress || 0) * 100)}%` }} />
+              </div>
+              <p className="fineprint" style={{ marginTop: 8 }}>{t('upload.progressNote')}</p>
             </div>
           )}
 
           {error && (
             <div className="notice flag" style={{ marginTop: 16 }} role="alert">
-              <span className="lead">{draft ? 'Could not read it' : 'Check the file'}</span>
+              <span className="lead">{draft ? t('upload.cantRead') : t('upload.checkFile')}</span>
               {error}
             </div>
           )}
 
           {draft && !error && (
             <div className="notice ok" style={{ marginTop: 16 }}>
-              <span className="lead">Read the document</span>
-              Found {draft.found} item{draft.found === 1 ? '' : 's'}.
-              {draft.confidence != null && ` OCR confidence ${Math.round(draft.confidence)}%.`}
-              {' '}Check it below and correct anything that looks wrong — nothing is saved until you confirm.
+              <span className="lead">{t('upload.readOk')}</span>
+              {t('upload.readOkBody', { n: draft.found })}
             </div>
           )}
 
-          <h3 className="subhead" style={{ marginTop: 26 }}>Review before saving</h3>
+          <h3 className="subhead" style={{ marginTop: 26 }}>{t('upload.review')}</h3>
 
           <div className="row">
             <div>
-              <label htmlFor="f-type">Type</label>
+              <label htmlFor="f-type">{t('upload.type')}</label>
               <select id="f-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                <option value="lab">Lab report</option>
-                <option value="prescription">Prescription</option>
-                <option value="scan">Scan</option>
-                <option value="discharge">Discharge summary</option>
-                <option value="note">Note</option>
+                <option value="lab">{t('type.lab')}</option>
+                <option value="prescription">{t('type.prescription')}</option>
+                <option value="scan">{t('type.scan')}</option>
+                <option value="discharge">{t('type.discharge')}</option>
+                <option value="note">{t('type.note')}</option>
               </select>
             </div>
             <div>
-              <label htmlFor="f-date">Date</label>
+              <label htmlFor="f-date">{t('upload.date')}</label>
               <input id="f-date" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             </div>
           </div>
 
           <div className="field">
-            <label htmlFor="f-provider">Provider</label>
+            <label htmlFor="f-provider">{t('upload.provider')}</label>
             <input id="f-provider" value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} placeholder="Apollo Labs, Bengaluru" />
           </div>
 
           <div className="field">
-            <label htmlFor="f-title">Title</label>
+            <label htmlFor="f-title">{t('upload.titleF')}</label>
             <input id="f-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="HbA1c 6.9% — routine" />
           </div>
 
           {draft && Object.keys(draft.labs).length > 0 && (
             <div className="field">
-              <span className="field-label">Values found — edit any of them</span>
+              <span className="field-label">{t('upload.values')}</span>
               <div className="labs">
                 {Object.entries(draft.labs).map(([k, v]) => (
                   <div className="labs-row" key={k}>
-                    <span className="k">{k}</span>
+                    <span className="k">{k || '—'}</span>
                     <input
                       className="labs-edit"
                       value={String(v)}
@@ -444,106 +421,82 @@ function UploadTab({ state, update }) {
                     />
                     <button
                       className="labs-del"
-                      aria-label={`Remove ${k}`}
+                      aria-label={`Remove ${k || 'value'}`}
                       onClick={() => {
                         const nextLabs = { ...draft.labs }
                         delete nextLabs[k]
                         setDraft({ ...draft, labs: nextLabs })
                       }}
-                    >
-                      ×
-                    </button>
+                    >×</button>
                   </div>
                 ))}
               </div>
               <button className="btn quiet small" style={{ marginTop: 10 }} onClick={() => setDraft({ ...draft, labs: { ...draft.labs, '': '' } })}>
-                Add a value
+                {t('upload.addValue')}
               </button>
             </div>
           )}
 
           {meds.length > 0 && (
             <div className="field">
-              <span className="field-label">Medicines found in the document</span>
+              <span className="field-label">{t('upload.medsFoundLbl')}</span>
               <div className="meds">
                 {meds.map((m) => <span key={m.name}>{m.name} <b>{m.dose}</b> · {m.freq}</span>)}
               </div>
-              <p className="fineprint">
-                Saved onto the record only. They are checked against your current list below — they are not
-                added to your medicines until you do that yourself.
-              </p>
+              <p className="fineprint">{t('upload.medsFoundBody')}</p>
             </div>
           )}
 
-          {meds.length > 0 && (
-            <div className="notice-stack">
-              {(() => {
-                const hits = meds.flatMap((m) => checkInteractions(state.patient.currentMeds, m.name).map((h) => `${m.name}: ${h.msg}`))
-                if (!hits.length) return null
-                const list = [...new Set(hits)]
-                return (
-                  <div className="notice crit">
-                    <span className="lead">Check with your doctor</span>
-                    {list.join(' ')}
-                  </div>
-                )
-              })()}
+          {medHits.length > 0 && (
+            <div className="notice crit" style={{ marginTop: 16 }}>
+              <span className="lead">{t('upload.checkDoctor')}</span>
+              {[...new Set(medHits)].join(' ')}
             </div>
           )}
 
           <div className="field">
-            <label htmlFor="f-notes">Notes</label>
-            <textarea id="f-notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Symptoms, advice, anything the doctor said." />
+            <label htmlFor="f-notes">{t('upload.notes')}</label>
+            <textarea id="f-notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
 
           {dupWarn && (
             <div className="notice flag" style={{ marginTop: 18 }}>
-              <span className="lead">You already have {dupWarn.length === 1 ? 'this test' : 'these tests'}</span>
+              <span className="lead">
+                {t('upload.dupTitle', { what: t(dupWarn.length === 1 ? 'upload.dupOne' : 'upload.dupMany') })}
+              </span>
               {dupWarn.map((d) => (
                 <div key={d.test} style={{ marginTop: 4 }}>
-                  <b>{d.test}</b> was done {d.candidates[0].diffDays} days ago ({d.candidates[0].record.date},
-                  {' '}{d.candidates[0].record.provider}, result {d.candidates[0].record.labs[d.test]}).
-                  The window for this test is {d.windowDays} days — sharing the earlier result is cheaper than repeating it.
+                  {t('upload.dupBody', {
+                    test: d.test,
+                    days: d.candidates[0].diffDays,
+                    date: d.candidates[0].record.date,
+                    provider: d.candidates[0].record.provider,
+                    value: d.candidates[0].record.labs[d.test],
+                    window: d.windowDays
+                  })}
                 </div>
               ))}
             </div>
           )}
 
           <div className="btn-row">
-            <button className="btn" onClick={onSave}>Save to timeline</button>
-            {!file && <span className="fineprint" style={{ alignSelf: 'center', marginTop: 0 }}>Typed-in record, no file attached.</span>}
+            <button className="btn" onClick={onSave}>{t('upload.save')}</button>
+            {!file && <span className="fineprint" style={{ alignSelf: 'center', marginTop: 0 }}>{t('upload.typed')}</span>}
           </div>
         </div>
       </section>
 
       <section className="panel">
-        <div className="panel-head"><h2>How the file is handled</h2></div>
+        <div className="panel-head"><h2>{t('upload.handleTitle')}</h2></div>
         <div className="panel-pad">
           <dl className="deflist">
-            <div>
-              <dt>Stays on this device</dt>
-              <dd>The file goes into your browser&rsquo;s IndexedDB. Nothing is sent anywhere.</dd>
-            </div>
-            <div>
-              <dt>Read in the browser</dt>
-              <dd>Text PDFs are read from their text layer. Photos and scanned PDFs go through OCR in English, हिन्दी and தமிழ்.</dd>
-            </div>
-            <div>
-              <dt>You check the result</dt>
-              <dd>Recognised values, dates and medicines are a draft. Nothing is saved until you confirm it.</dd>
-            </div>
-            <div>
-              <dt>Checked against your chart</dt>
-              <dd>On confirm, the duplicate-test guard and the interaction checker both run.</dd>
-            </div>
-            <div>
-              <dt>Size matters when sharing</dt>
-              <dd>A shared link carries the original file only if it is under {SHARE_ATTACHMENT_LIMIT / 1024} KB. Bigger files share the extracted values and say so.</dd>
-            </div>
+            <div><dt>{t('upload.h1')}</dt><dd>{t('upload.h1b')}</dd></div>
+            <div><dt>{t('upload.h2')}</dt><dd>{t('upload.h2b')}</dd></div>
+            <div><dt>{t('upload.h3')}</dt><dd>{t('upload.h3b')}</dd></div>
+            <div><dt>{t('upload.h4')}</dt><dd>{t('upload.h4b')}</dd></div>
+            <div><dt>{t('upload.h5')}</dt><dd>{t('upload.h5b', { kb: SHARE_ATTACHMENT_LIMIT / 1024 })}</dd></div>
           </dl>
-          <p className="fineprint">
-            OCR is not perfect. Always check the recognised numbers against the document before saving.
-          </p>
+          <p className="fineprint">{t('upload.ocrCaveat')}</p>
         </div>
       </section>
 
@@ -553,6 +506,7 @@ function UploadTab({ state, update }) {
 }
 
 function MedsTab({ state, update }) {
+  const t = useT()
   const [name, setName] = useState('')
   const [dose, setDose] = useState('')
   const existing = checkExistingCombo(state.patient.currentMeds)
@@ -562,7 +516,7 @@ function MedsTab({ state, update }) {
     if (!name.trim()) return
     const hits = checkInteractions(state.patient.currentMeds, name)
     if (hits.some((h) => h.level === 'high')) {
-      if (!confirm(`High-risk interaction:\n\n${hits.map((h) => h.msg).join('\n\n')}\n\nAdd it anyway?`)) return
+      if (!confirm(`${hits.map((h) => h.msg).join('\n\n')}\n\nAdd it anyway?`)) return
     }
     const next = {
       ...state,
@@ -585,14 +539,14 @@ function MedsTab({ state, update }) {
     <div className="stack split">
       <section className="panel">
         <div className="panel-head">
-          <h2>Current medicines</h2>
-          <span className="hint">the list an ER needs</span>
+          <h2>{t('meds.title')}</h2>
+          <span className="hint">{t('meds.hint')}</span>
         </div>
         <div className="panel-pad">
           <div className="scroll-x">
             <table>
               <thead>
-                <tr><th>Medicine</th><th>Dose</th><th>Started</th><th></th></tr>
+                <tr><th>{t('meds.col1')}</th><th>{t('meds.col2')}</th><th>{t('meds.col3')}</th><th></th></tr>
               </thead>
               <tbody>
                 {state.patient.currentMeds.map((m) => (
@@ -601,7 +555,7 @@ function MedsTab({ state, update }) {
                     <td className="num">{m.dose}</td>
                     <td className="num">{m.since}</td>
                     <td style={{ textAlign: 'right' }}>
-                      <button className="btn quiet small" onClick={() => remove(m.name)}>Stop</button>
+                      <button className="btn quiet small" onClick={() => remove(m.name)}>{t('meds.stop')}</button>
                     </td>
                   </tr>
                 ))}
@@ -611,61 +565,49 @@ function MedsTab({ state, update }) {
 
           {existing.length > 0 && (
             <div className="notice crit" style={{ marginTop: 18 }}>
-              <span className="lead">Conflict already on this list</span>
+              <span className="lead">{t('meds.conflict')}</span>
               {existing.map((e) => e.msg).join(' ')}
             </div>
           )}
 
           <div className="field" style={{ marginTop: 24, paddingTop: 22, borderTop: '1px solid var(--rule)' }}>
-            <label htmlFor="m-name">Check and add a medicine</label>
-            <p className="fineprint" style={{ marginTop: 0 }}>Try &ldquo;Ibuprofen&rdquo; to see the conflict the chart catches.</p>
+            <label htmlFor="m-name">{t('meds.checkAdd')}</label>
+            <p className="fineprint" style={{ marginTop: 0 }}>{t('meds.tryIbuprofen')}</p>
             <div className="row" style={{ marginTop: 12 }}>
-              <input id="m-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ibuprofen" />
-              <input value={dose} onChange={(e) => setDose(e.target.value)} placeholder="Dose, e.g. 400mg" aria-label="Dose" />
+              <input id="m-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ibuprofen" aria-label={t('meds.nameLabel')} />
+              <input value={dose} onChange={(e) => setDose(e.target.value)} placeholder="400mg" aria-label={t('meds.doseLabel')} />
             </div>
 
             {previewHits.length > 0 && (
               <div className="notice crit" style={{ marginTop: 14 }}>
-                <span className="lead">Would interact</span>
+                <span className="lead">{t('meds.wouldInteract')}</span>
                 {previewHits.map((h) => h.msg).join(' ')}
               </div>
             )}
             {name && previewHits.length === 0 && (
               <div className="notice ok" style={{ marginTop: 14 }}>
-                <span className="lead">No conflict found</span>
-                No known interaction with the current list in the demo rules.
+                <span className="lead">{t('meds.clear')}</span>
+                {t('meds.clearBody')}
               </div>
             )}
 
             <div className="btn-row">
-              <button className="btn" onClick={add} disabled={!name.trim()}>Add medicine</button>
+              <button className="btn" onClick={add} disabled={!name.trim()}>{t('meds.add')}</button>
             </div>
           </div>
 
-          <p className="fineprint">
-            Allergies on file: <b>{state.patient.allergies.join(', ')}</b>. Shown to every doctor
-            and on the emergency card.
-          </p>
+          <p className="fineprint">{t('meds.allergies', { list: state.patient.allergies.join(', ') })}</p>
         </div>
       </section>
 
       <section className="panel">
-        <div className="panel-head"><h2>How this prevents harm</h2></div>
+        <div className="panel-head"><h2>{t('meds.prevention')}</h2></div>
         <div className="panel-pad">
-          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)' }}>
-            In August 2023, CityCare Clinic treated a fever with Ibuprofen. Nobody there knew about
-            the Telmisartan started five months earlier, because that prescription was a photo on a
-            different phone. This chart flags the pair before it is taken.
-          </p>
-          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)', marginTop: 14 }}>
-            Duplicate tests are checked against per-test windows — HbA1c 90 days, creatinine 60,
-            LDL 120. A doctor who orders an HbA1c three weeks after one already exists gets a nudge
-            to open the existing result.
-          </p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)' }}>{t('meds.preventionBody')}</p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)', marginTop: 14 }}>{t('meds.windows')}</p>
           <div className="notice flag" style={{ marginTop: 18 }}>
-            <span className="lead">Scope</span>
-            The rule set here is illustrative. A real deployment would check against an approved
-            drug database and clinical decision support rules.
+            <span className="lead">{t('meds.scope')}</span>
+            {t('meds.scopeBody')}
           </div>
         </div>
       </section>
@@ -674,20 +616,24 @@ function MedsTab({ state, update }) {
 }
 
 function ShareTab({ state, update }) {
+  const t = useT()
   const [label, setLabel] = useState('')
   const [hours, setHours] = useState(24)
   const [ids, setIds] = useState(state.records.slice(0, 3).map((r) => r.id))
-  const [lastToken, setLastToken] = useState('')
+  const [lastToken, setLastToken] = useState(null)
   const [noteCode, setNoteCode] = useState('')
   const [noteMsg, setNoteMsg] = useState(null)
   const [toast, setToast] = useState('')
 
   const toggle = (id) => setIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
-
   const flash = (m) => { setToast(m); setTimeout(() => setToast(''), 2600) }
+  const copy = async (text, okMsg) => {
+    try { await navigator.clipboard.writeText(text); flash(t(okMsg)) }
+    catch { flash(t('toast.copyFailed')) }
+  }
 
   const create = async () => {
-    if (!ids.length) { alert('Select at least one record.'); return }
+    if (!ids.length) { alert(t('err.selectOne')); return }
     const share = {
       id: uid('share'),
       label: label || `Share ${new Date().toLocaleString()}`,
@@ -697,15 +643,13 @@ function ShareTab({ state, update }) {
       revoked: false, accesses: 0, purpose: label
     }
 
-    // Attach the original only when it is small enough to keep the link usable.
     const picked = state.records.filter((r) => ids.includes(r.id))
     const chosen = await Promise.all(picked.map(async (r) => {
       if (!r.fileId) return r
       if ((r.fileSize || 0) > SHARE_ATTACHMENT_LIMIT) return { ...r, docOmitted: true }
       try {
         const dataUrl = await getFileDataUrl(r.fileId)
-        if (!dataUrl) return { ...r, docOmitted: true }
-        return { ...r, doc: { name: r.fileName, dataUrl } }
+        return dataUrl ? { ...r, doc: { name: r.fileName, dataUrl } } : { ...r, docOmitted: true }
       } catch {
         return { ...r, docOmitted: true }
       }
@@ -718,39 +662,30 @@ function ShareTab({ state, update }) {
     update(next)
     setLastToken({ token, omitted })
     setLabel('')
-    flash('Link created')
-  }
-
-  const copyLink = async () => {
-    const url = shareUrl(lastToken.token)
-    try {
-      await navigator.clipboard.writeText(url)
-      flash('Link copied')
-    } catch {
-      flash('Copy failed — select the link and copy it manually')
-    }
+    flash(t('toast.linkCreated'))
   }
 
   const revoke = (id) => {
     const next = { ...state, shares: state.shares.map((s) => (s.id === id ? { ...s, revoked: true } : s)) }
     addAudit(next, `Share revoked: ${id}`)
     update(next)
-    flash('Access revoked')
+    flash(t('toast.revoked'))
   }
 
   const importNote = () => {
     const d = decodeNoteCode(noteCode)
     if (!d.ok) { setNoteMsg({ ok: false, text: d.message }); return }
     if (state.records.some((r) => r.id === d.record.id)) {
-      setNoteMsg({ ok: false, text: 'That note is already in your timeline.' }); return
+      setNoteMsg({ ok: false, text: t('share.noteAddedBody', { title: d.record.title, provider: d.record.provider }) })
+      return
     }
     const rec = { ...d.record, conditions: d.record.conditions || [] }
     const next = { ...state, records: [rec, ...state.records] }
     addAudit(next, `Imported note from doctor: ${rec.title}`)
     update(next)
     setNoteCode('')
-    setNoteMsg({ ok: true, text: `Added "${rec.title}" to your timeline from ${rec.provider}.` })
-    flash('Note added')
+    setNoteMsg({ ok: true, text: t('share.noteAddedBody', { title: rec.title, provider: rec.provider }) })
+    flash(t('toast.noteAdded'))
   }
 
   const url = lastToken ? shareUrl(lastToken.token) : ''
@@ -760,24 +695,24 @@ function ShareTab({ state, update }) {
       <div className="stack-tight">
         <section className="panel">
           <div className="panel-head">
-            <h2>Create a share</h2>
-            <span className="hint">works on any device</span>
+            <h2>{t('share.title')}</h2>
+            <span className="hint">{t('share.hint')}</span>
           </div>
           <div className="panel-pad">
             <div className="field">
-              <label htmlFor="s-label">Who it is for</label>
-              <input id="s-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Dr. Iyer, diabetes review" />
+              <label htmlFor="s-label">{t('share.who')}</label>
+              <input id="s-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('share.whoPh')} />
             </div>
 
             <div className="field">
-              <label htmlFor="s-exp">Expires after</label>
+              <label htmlFor="s-exp">{t('share.expires')}</label>
               <select id="s-exp" value={hours} onChange={(e) => setHours(Number(e.target.value))}>
-                {expiryOptions().map((o) => <option key={o.hours} value={o.hours}>{o.label}</option>)}
+                {expiryOptions().map((o) => <option key={o.hours} value={o.hours}>{t(`share.expiry${o.hours}`)}</option>)}
               </select>
             </div>
 
             <div className="field">
-              <span className="field-label">Records to include — {ids.length} selected</span>
+              <span className="field-label">{t('share.records', { n: ids.length })}</span>
               <div className="picker">
                 {[...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
                   <label key={r.id} className="checkline">
@@ -789,23 +724,21 @@ function ShareTab({ state, update }) {
             </div>
 
             <div className="btn-row">
-              <button className="btn" onClick={create}>Create expiring link</button>
+              <button className="btn" onClick={create}>{t('share.create')}</button>
             </div>
 
             {lastToken && (
               <div className="notice ok" style={{ marginTop: 18 }}>
-                <span className="lead">Link ready</span>
-                The records travel inside the link itself, so it opens on a phone or another laptop even
-                if that device has never seen MediThread.
+                <span className="lead">{t('share.ready')}</span>
+                {t('share.readyBody')}
                 {lastToken.omitted > 0 && (
                   <div style={{ marginTop: 6 }}>
-                    {lastToken.omitted} attached file{lastToken.omitted === 1 ? ' was' : 's were'} over{' '}
-                    {SHARE_ATTACHMENT_LIMIT / 1024} KB, so the extracted values are shared but the originals are not.
+                    {t('share.omitted', { n: lastToken.omitted, kb: SHARE_ATTACHMENT_LIMIT / 1024 })}
                   </div>
                 )}
                 <span className="mono-hint wordwrap" style={{ display: 'block', color: 'var(--ink-80)', marginTop: 8 }}>{url}</span>
                 <div className="btn-row" style={{ marginTop: 12 }}>
-                  <button className="btn quiet small" onClick={copyLink}>Copy link</button>
+                  <button className="btn quiet small" onClick={() => copy(url, 'toast.linkCopied')}>{t('share.copy')}</button>
                 </div>
               </div>
             )}
@@ -814,29 +747,21 @@ function ShareTab({ state, update }) {
 
         <section className="panel">
           <div className="panel-head">
-            <h2>Receive a note from a doctor</h2>
-            <span className="hint">paste a note code</span>
+            <h2>{t('share.receive')}</h2>
+            <span className="hint">{t('share.receiveHint')}</span>
           </div>
           <div className="panel-pad">
-            <p className="fineprint" style={{ marginTop: 0 }}>
-              MediThread has no server, so a doctor cannot write into your chart directly. They send you
-              a note code instead — paste it here and it joins your timeline.
-            </p>
+            <p className="fineprint" style={{ marginTop: 0 }}>{t('share.receiveBody')}</p>
             <div className="field">
-              <label htmlFor="s-note">Note code</label>
-              <textarea
-                id="s-note"
-                value={noteCode}
-                onChange={(e) => { setNoteCode(e.target.value); setNoteMsg(null) }}
-                placeholder="mtn1:..."
-              />
+              <label htmlFor="s-note">{t('share.noteLabel')}</label>
+              <textarea id="s-note" value={noteCode} onChange={(e) => { setNoteCode(e.target.value); setNoteMsg(null) }} placeholder="mtn1:…" />
             </div>
             <div className="btn-row" style={{ marginTop: 12 }}>
-              <button className="btn quiet" onClick={importNote} disabled={!noteCode.trim()}>Add to my timeline</button>
+              <button className="btn quiet" onClick={importNote} disabled={!noteCode.trim()}>{t('share.noteAdd')}</button>
             </div>
             {noteMsg && (
               <div className={`notice ${noteMsg.ok ? 'ok' : 'crit'}`} style={{ marginTop: 14 }}>
-                <span className="lead">{noteMsg.ok ? 'Added' : 'Cannot import'}</span>
+                <span className="lead">{t(noteMsg.ok ? 'share.noteAdded' : 'share.cannotImport')}</span>
                 {noteMsg.text}
               </div>
             )}
@@ -846,29 +771,29 @@ function ShareTab({ state, update }) {
 
       <div className="stack-tight">
         <section className="panel">
-          <div className="panel-head"><h2>Shares</h2></div>
+          <div className="panel-head"><h2>{t('share.listTitle')}</h2></div>
           <div className="panel-pad">
             {state.shares.length === 0 ? (
-              <p className="fineprint" style={{ marginTop: 0 }}>No shares yet. Create one to hand a doctor exactly what they need.</p>
+              <p className="fineprint" style={{ marginTop: 0 }}>{t('share.noShares')}</p>
             ) : (
               <div className="scroll-x">
                 <table>
-                  <thead><tr><th>Purpose</th><th>Status</th><th>Views</th><th></th></tr></thead>
+                  <thead><tr><th>{t('share.colPurpose')}</th><th>{t('share.colStatus')}</th><th>{t('share.colViews')}</th><th></th></tr></thead>
                   <tbody>
                     {state.shares.map((s) => {
                       const expired = new Date(s.expiresAt) < new Date()
                       return (
                         <tr key={s.id}>
-                          <td><b>{s.label}</b><div className="sub">{s.recordIds.length} records</div></td>
+                          <td><b>{s.label}</b><div className="sub">{s.recordIds.length}</div></td>
                           <td>
                             <span className={`st ${s.revoked ? 'killed' : expired ? 'dead' : 'live'}`}>
-                              {s.revoked ? 'Revoked' : expired ? 'Expired' : 'Live'}
+                              {t(s.revoked ? 'share.stRevoked' : expired ? 'share.stExpired' : 'share.stLive')}
                             </span>
                             <div className="sub num">{new Date(s.expiresAt).toLocaleString()}</div>
                           </td>
                           <td className="num">{s.accesses}</td>
                           <td style={{ textAlign: 'right' }}>
-                            {!s.revoked && <button className="btn quiet small" onClick={() => revoke(s.id)}>Revoke</button>}
+                            {!s.revoked && <button className="btn quiet small" onClick={() => revoke(s.id)}>{t('share.revoke')}</button>}
                           </td>
                         </tr>
                       )
@@ -879,17 +804,17 @@ function ShareTab({ state, update }) {
             )}
 
             <div className="notice flag" style={{ marginTop: 18 }}>
-              <span className="lead">About revoking</span>
-              {REVOCATION_CAVEAT} Until the link expires on its own, revoking blocks it in this browser only.
+              <span className="lead">{t('share.revokeTitle')}</span>
+              {t('share.revokeBody')}
             </div>
           </div>
         </section>
 
         <section className="panel">
-          <div className="panel-head"><h2>Access log</h2><span className="hint">{state.audit.length} entries</span></div>
+          <div className="panel-head"><h2>{t('share.accessLog')}</h2><span className="hint">{state.audit.length}</span></div>
           <div className="panel-pad">
             {state.audit.length === 0 ? (
-              <p className="fineprint" style={{ marginTop: 0 }}>Nothing has been opened or changed yet.</p>
+              <p className="fineprint" style={{ marginTop: 0 }}>{t('share.noAccess')}</p>
             ) : (
               <div style={{ maxHeight: 240, overflow: 'auto' }}>
                 {state.audit.map((a, i) => (
@@ -914,71 +839,41 @@ function shareUrl(token) {
 }
 
 function EmergencyTab({ state }) {
+  const t = useT()
   const erUrl = `${location.origin}${location.pathname}#/emergency`
   const p = state.patient
 
   return (
     <div className="stack split">
       <section>
-        <div className="ercard">
-          <p className="kicker" style={{ color: 'var(--stamp)' }}>Emergency card</p>
-          <h2>{p.name}</h2>
-          <p className="meta">{p.age} years, {p.sex}. {p.city}.</p>
-          <p className="big">{p.bloodGroup}</p>
-          <p className="mono-hint">blood group</p>
-
-          <dl>
-            <div className="rowline">
-              <dt>Conditions</dt>
-              <dd>{p.conditions.join(', ')}</dd>
-            </div>
-            <div className="rowline">
-              <dt>Allergies</dt>
-              <dd><b>{p.allergies.join(', ')}</b></dd>
-            </div>
-            <div className="rowline">
-              <dt>Medicines</dt>
-              <dd>{p.currentMeds.map((m) => `${m.name} ${m.dose}, ${m.freq}`).join(' · ')}</dd>
-            </div>
-            <div className="rowline">
-              <dt>Contact</dt>
-              <dd>{p.emergencyContact}</dd>
-            </div>
-            <div className="rowline">
-              <dt>ER PIN</dt>
-              <dd><code className="inline">{p.emergencyPin}</code></dd>
-            </div>
-          </dl>
-        </div>
+        <EmergencyCard patient={p} />
 
         <div className="btn-row">
+          <a className="btn quiet" href="#/emergency">{t('er.printCard')}</a>
           <button className="btn quiet" onClick={() => {
             const blob = new Blob([JSON.stringify({ patient: p, records: state.records }, null, 2)], { type: 'application/json' })
             const a = document.createElement('a')
             a.href = URL.createObjectURL(blob)
             a.download = 'medithread-chart.json'
             a.click()
-          }}>Export the chart as JSON</button>
-          <button className="btn quiet" onClick={() => window.print()}>Print this card</button>
+          }}>{t('er.export')}</button>
         </div>
       </section>
 
       <section className="panel">
         <div className="panel-head">
-          <h2>Carry it on your phone</h2>
-          <span className="hint">scan to open</span>
+          <h2>{t('er.carry')}</h2>
+          <span className="hint">{t('er.carryHint')}</span>
         </div>
         <div className="panel-pad">
           <div className="qrbox">
             <QRCodeSVG value={erUrl} size={186} bgColor="#FCFCF9" fgColor="#151A17" />
           </div>
           <p className="fineprint wordwrap">{erUrl}</p>
-          <p className="fineprint">
-            Scanning opens the PIN-gated emergency view. No login, read only, and every open is logged.
-            Demo PIN is <code className="inline">{p.emergencyPin}</code>.
-          </p>
+          <p className="fineprint">{t('er.scanBody', { pin: p.emergencyPin })}</p>
         </div>
       </section>
     </div>
   )
 }
+

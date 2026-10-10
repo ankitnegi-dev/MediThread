@@ -1,23 +1,31 @@
 import React, { useId, useState } from 'react'
 import { getFileDataUrl } from '../utils/blobStore.js'
 import { labNumber } from '../utils/extract.js'
+import { useT, useLang } from '../i18n/index.jsx'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-const TYPE_META = {
-  prescription: { label: 'Prescription', k: 'k-prescription' },
-  lab: { label: 'Lab result', k: 'k-lab' },
-  scan: { label: 'Scan', k: 'k-scan' },
-  discharge: { label: 'Discharge', k: 'k-discharge' },
-  note: { label: 'Note', k: 'k-note' }
+const MONTHS = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  hi: ['जन', 'फ़र', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुल', 'आग', 'सित', 'अक्तू', 'नव', 'दिस'],
+  ta: ['ஜன', 'பிப்', 'மார்', 'ஏப்', 'மே', 'ஜூன்', 'ஜூலை', 'ஆக', 'செப்', 'அக்', 'நவ', 'டிச'],
+  kn: ['ಜನ', 'ಫಬ್', 'ಮಾರ್', 'ಏಪ್', 'ಮೇ', 'ಜೂನ್', 'ಜುಲೈ', 'ಆಗ', 'ಸೆಪ್', 'ಅಕ್ಟ್', 'ನವೆ', 'ಡಿಸೆ']
 }
 
-function typeMeta(type) {
-  return TYPE_META[type] || { label: type, k: 'k-note' }
+const TYPE_META = {
+  prescription: { labelKey: 'type.prescription', k: 'k-prescription' },
+  lab: { labelKey: 'type.lab', k: 'k-lab' },
+  scan: { labelKey: 'type.scan', k: 'k-scan' },
+  discharge: { labelKey: 'type.discharge', k: 'k-discharge' },
+  note: { labelKey: 'type.note', k: 'k-note' }
+}
+
+function typeMeta(type, t) {
+  const m = TYPE_META[type]
+  return m ? { label: t(m.labelKey), k: m.k } : { label: type, k: 'k-note' }
 }
 
 /** Shows the attached original when it is on this device or carried in the link. */
 export function DocumentButton({ record }) {
+  const t = useT()
   const [url, setUrl] = useState(record.doc?.dataUrl || null)
   const [open, setOpen] = useState(false)
   const [err, setErr] = useState('')
@@ -34,11 +42,11 @@ export function DocumentButton({ record }) {
     setBusy(true)
     try {
       const d = await getFileDataUrl(record.fileId)
-      if (!d) { setErr('That file is no longer stored in this browser.'); return }
+      if (!d) { setErr(t('timeline.docGone')); return }
       setUrl(d)
       setOpen(true)
     } catch {
-      setErr('That file could not be opened.')
+      setErr(t('upload.errUnreadable'))
     } finally {
       setBusy(false)
     }
@@ -51,14 +59,14 @@ export function DocumentButton({ record }) {
     <div className="entry-actions">
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <button className="btn quiet small" onClick={view} disabled={busy}>
-          {busy ? 'Opening…' : open ? 'Hide document' : 'View document'}
+          {busy ? t('upload.opening') : open ? t('timeline.hideDoc') : t('timeline.viewDoc')}
         </button>
         {url && (
-          <a className="btn quiet small" href={url} download={name || 'document'}>Download</a>
+          <a className="btn quiet small" href={url} download={name || 'document'}>{t('timeline.download')}</a>
         )}
       </div>
       {record.docOmitted && !hasInline && (
-        <p className="fineprint" style={{ marginTop: 8 }}>Original file not included — the extracted values were shared instead.</p>
+        <p className="fineprint" style={{ marginTop: 8 }}>{t('timeline.docOmitted')}</p>
       )}
       {err && <p className="fineprint" style={{ marginTop: 8, color: 'var(--stamp)' }}>{err}</p>}
       {open && url && (
@@ -73,19 +81,22 @@ export function DocumentButton({ record }) {
 }
 
 export function TimelineItem({ r, onView }) {
-  const t = typeMeta(r.type)
+  const t = useT()
+  const { lang } = useLang()
+  const tm = typeMeta(r.type, t)
+  const months = MONTHS[lang] || MONTHS.en
   const [, m, d] = (r.date || '').split('-')
 
   return (
-    <article className={`entry ${t.k}`}>
+    <article className={`entry ${tm.k}`}>
       <div className="entry-date">
         <span className="d">{d}</span>
-        <span className="m">{MONTHS[Number(m) - 1]} {r.date.slice(0, 4)}</span>
+        <span className="m">{months[Number(m) - 1]} {r.date.slice(0, 4)}</span>
       </div>
 
       <div className="entry-body">
         <div className="entry-top">
-          <span className="ink"><i />{t.label}</span>
+          <span className="ink"><i />{tm.label}</span>
           <span className="mono-hint">{r.source || 'Digital'}</span>
           {(r.conditions || []).map((c) => <span key={c} className="tag">{c}</span>)}
         </div>
@@ -116,7 +127,7 @@ export function TimelineItem({ r, onView }) {
 
         {r.flag && (
           <div className="notice crit" style={{ marginTop: 14 }}>
-            <span className="lead">Flag</span>{r.flag}
+            <span className="lead">{t('timeline.flag')}</span>{r.flag}
           </div>
         )}
 
@@ -124,7 +135,7 @@ export function TimelineItem({ r, onView }) {
 
         {onView && (
           <div className="entry-actions">
-            <button className="btn quiet small" onClick={() => onView(r)}>Open record</button>
+            <button className="btn quiet small" onClick={() => onView(r)}>{t('timeline.open')}</button>
           </div>
         )}
       </div>
@@ -135,6 +146,7 @@ export function TimelineItem({ r, onView }) {
 /* Lab trend plotted on graph paper — the chart you would actually
    find in the file, with the target line drawn in. */
 export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) {
+  const t = useT()
   const gid = useId().replace(/:/g, '')
   const pts = records
     .filter((r) => r.labs && labNumber(r.labs[test]) !== null)
@@ -144,7 +156,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
   if (pts.length < 2) {
     return (
       <p className="fineprint" style={{ marginTop: 0 }}>
-        One {test} result on file. A trend needs two or more.
+        {t('labs.needTwo', { test })}
       </p>
     )
   }
@@ -219,10 +231,8 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
       </svg>
 
       <p className="fineprint">
-        {pts.length} results, {vals[0]} to {vals[vals.length - 1]} {unit}.{' '}
-        {improving
-          ? 'Trending down since the first result — share this instead of repeating the test.'
-          : 'Share this trend with your next doctor rather than repeating the test.'}
+        {t('labs.trend', { n: pts.length, from: vals[0], to: vals[vals.length - 1], unit })} {' '}
+        {improving ? t('labs.improving') : t('labs.neutral')}
       </p>
     </div>
   )
