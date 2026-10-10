@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { LabChart, TimelineItem } from '../components/ui.jsx'
 import { checkInteractions, checkExistingCombo, findRecentSameTest, simulateParse } from '../utils/medSafety.js'
 import { addAudit } from '../utils/store.js'
-import { expiryOptions, makeShareToken } from '../utils/share.js'
+import { expiryOptions, makeShareToken, decodeNoteCode, REVOCATION_CAVEAT } from '../utils/share.js'
 import { QRCodeSVG } from 'qrcode.react'
 
 const uid = (p) => `${p}-${Math.random().toString(36).slice(2, 8)}`
@@ -455,8 +455,13 @@ function ShareTab({ state, update }) {
   const [hours, setHours] = useState(24)
   const [ids, setIds] = useState(state.records.slice(0, 3).map((r) => r.id))
   const [lastToken, setLastToken] = useState('')
+  const [noteCode, setNoteCode] = useState('')
+  const [noteMsg, setNoteMsg] = useState(null)
+  const [toast, setToast] = useState('')
 
   const toggle = (id) => setIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+
+  const flash = (m) => { setToast(m); setTimeout(() => setToast(''), 2600) }
 
   const create = () => {
     if (!ids.length) { alert('Select at least one record.'); return }
@@ -468,66 +473,130 @@ function ShareTab({ state, update }) {
       expiresAt: new Date(Date.now() + hours * 3600 * 1000).toISOString(),
       revoked: false, accesses: 0, purpose: label
     }
-    const token = makeShareToken(share)
+    const chosen = state.records.filter((r) => ids.includes(r.id))
+    const token = makeShareToken({ share, patient: state.patient, records: chosen })
     const next = { ...state, shares: [share, ...state.shares] }
     addAudit(next, `Share created: ${share.label} (${ids.length} records, ${hours}h)`)
     update(next); setLastToken(token); setLabel('')
+    flash('Link created')
+  }
+
+  const copyLink = async () => {
+    const url = shareUrl(lastToken)
+    try {
+      await navigator.clipboard.writeText(url)
+      flash('Link copied')
+    } catch {
+      flash('Copy failed — select the link and copy it manually')
+    }
   }
 
   const revoke = (id) => {
     const next = { ...state, shares: state.shares.map((s) => (s.id === id ? { ...s, revoked: true } : s)) }
     addAudit(next, `Share revoked: ${id}`)
     update(next)
+    flash('Access revoked')
   }
 
-  const url = lastToken ? `${location.origin}${location.pathname}#/shared/${lastToken}` : ''
+  const importNote = () => {
+    const d = decodeNoteCode(noteCode)
+    if (!d.ok) { setNoteMsg({ ok: false, text: d.message }); return }
+    if (state.records.some((r) => r.id === d.record.id)) {
+      setNoteMsg({ ok: false, text: 'That note is already in your timeline.' }); return
+    }
+    const rec = { ...d.record, conditions: d.record.conditions || [] }
+    const next = { ...state, records: [rec, ...state.records] }
+    addAudit(next, `Imported note from doctor: ${rec.title}`)
+    update(next)
+    setNoteCode('')
+    setNoteMsg({ ok: true, text: `Added "${rec.title}" to your timeline from ${rec.provider}.` })
+    flash('Note added')
+  }
+
+  const url = lastToken ? shareUrl(lastToken) : ''
 
   return (
     <div className="stack split">
-      <section className="panel">
-        <div className="panel-head">
-          <h2>Create a share</h2>
-          <span className="hint">no more forwards</span>
-        </div>
-        <div className="panel-pad">
-          <div className="field">
-            <label htmlFor="s-label">Who it is for</label>
-            <input id="s-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Dr. Iyer, diabetes review" />
+      <div className="stack-tight">
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Create a share</h2>
+            <span className="hint">works on any device</span>
           </div>
-
-          <div className="field">
-            <label htmlFor="s-exp">Expires after</label>
-            <select id="s-exp" value={hours} onChange={(e) => setHours(Number(e.target.value))}>
-              {expiryOptions().map((o) => <option key={o.hours} value={o.hours}>{o.label}</option>)}
-            </select>
-          </div>
-
-          <div className="field">
-            <span className="field-label">Records to include — {ids.length} selected</span>
-            <div className="picker">
-              {[...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
-                <label key={r.id} className="checkline">
-                  <input type="checkbox" checked={ids.includes(r.id)} onChange={() => toggle(r.id)} />
-                  <span><b>{r.date}</b> — {r.title}</span>
-                </label>
-              ))}
+          <div className="panel-pad">
+            <div className="field">
+              <label htmlFor="s-label">Who it is for</label>
+              <input id="s-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Dr. Iyer, diabetes review" />
             </div>
-          </div>
 
-          <div className="btn-row">
-            <button className="btn" onClick={create}>Create expiring link</button>
-          </div>
-
-          {lastToken && (
-            <div className="notice ok" style={{ marginTop: 18 }}>
-              <span className="lead">Link ready</span>
-              <span className="mono-hint wordwrap" style={{ display: 'block', color: 'var(--ink-80)' }}>{url}</span>
-              Open the Doctor tab and paste it there. It expires in {hours} hours, can be revoked
-              from the list below, and every view is logged.
+            <div className="field">
+              <label htmlFor="s-exp">Expires after</label>
+              <select id="s-exp" value={hours} onChange={(e) => setHours(Number(e.target.value))}>
+                {expiryOptions().map((o) => <option key={o.hours} value={o.hours}>{o.label}</option>)}
+              </select>
             </div>
-          )}
-        </div>
-      </section>
+
+            <div className="field">
+              <span className="field-label">Records to include — {ids.length} selected</span>
+              <div className="picker">
+                {[...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
+                  <label key={r.id} className="checkline">
+                    <input type="checkbox" checked={ids.includes(r.id)} onChange={() => toggle(r.id)} />
+                    <span><b>{r.date}</b> — {r.title}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="btn-row">
+              <button className="btn" onClick={create}>Create expiring link</button>
+            </div>
+
+            {lastToken && (
+              <div className="notice ok" style={{ marginTop: 18 }}>
+                <span className="lead">Link ready</span>
+                The records travel inside the link itself, so it opens on a phone or another laptop even
+                if that device has never seen MediThread.
+                <span className="mono-hint wordwrap" style={{ display: 'block', color: 'var(--ink-80)', marginTop: 8 }}>{url}</span>
+                <div className="btn-row" style={{ marginTop: 12 }}>
+                  <button className="btn quiet small" onClick={copyLink}>Copy link</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Receive a note from a doctor</h2>
+            <span className="hint">paste a note code</span>
+          </div>
+          <div className="panel-pad">
+            <p className="fineprint" style={{ marginTop: 0 }}>
+              MediThread has no server, so a doctor cannot write into your chart directly. They send you
+              a note code instead — paste it here and it joins your timeline.
+            </p>
+            <div className="field">
+              <label htmlFor="s-note">Note code</label>
+              <textarea
+                id="s-note"
+                value={noteCode}
+                onChange={(e) => { setNoteCode(e.target.value); setNoteMsg(null) }}
+                placeholder="mtn1:..."
+              />
+            </div>
+            <div className="btn-row" style={{ marginTop: 12 }}>
+              <button className="btn quiet" onClick={importNote} disabled={!noteCode.trim()}>Add to my timeline</button>
+            </div>
+            {noteMsg && (
+              <div className={`notice ${noteMsg.ok ? 'ok' : 'crit'}`} style={{ marginTop: 14 }}>
+                <span className="lead">{noteMsg.ok ? 'Added' : 'Cannot import'}</span>
+                {noteMsg.text}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
 
       <div className="stack-tight">
         <section className="panel">
@@ -562,25 +631,40 @@ function ShareTab({ state, update }) {
                 </table>
               </div>
             )}
+
+            <div className="notice flag" style={{ marginTop: 18 }}>
+              <span className="lead">About revoking</span>
+              {REVOCATION_CAVEAT} Until the link expires on its own, revoking blocks it in this browser only.
+            </div>
           </div>
         </section>
 
         <section className="panel">
-          <div className="panel-head"><h2>Audit trail</h2><span className="hint">{state.audit.length} entries</span></div>
+          <div className="panel-head"><h2>Access log</h2><span className="hint">{state.audit.length} entries</span></div>
           <div className="panel-pad">
-            <div style={{ maxHeight: 210, overflow: 'auto' }}>
-              {state.audit.map((a, i) => (
-                <div key={i} className="notice" style={{ borderLeftWidth: 1, padding: '8px 0 8px 12px', marginBottom: 2, background: 'none' }}>
-                  <span className="mono-hint">{new Date(a.at).toLocaleString()}</span>
-                  <div style={{ marginTop: 3 }}>{a.event}</div>
-                </div>
-              ))}
-            </div>
+            {state.audit.length === 0 ? (
+              <p className="fineprint" style={{ marginTop: 0 }}>Nothing has been opened or changed yet.</p>
+            ) : (
+              <div style={{ maxHeight: 240, overflow: 'auto' }}>
+                {state.audit.map((a, i) => (
+                  <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid var(--rule-2)' }}>
+                    <span className="mono-hint">{new Date(a.at).toLocaleString()}</span>
+                    <div style={{ marginTop: 3, fontSize: 13 }}>{a.event}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )
+}
+
+function shareUrl(token) {
+  return `${location.origin}${location.pathname}#/shared/${token}`
 }
 
 function EmergencyTab({ state }) {

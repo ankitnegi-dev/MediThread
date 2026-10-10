@@ -713,6 +713,33 @@ code.inline {
 }
 
 /* ------------------------------------------------------------
+   Toast — confirms an action that happened off-screen
+   ------------------------------------------------------------ */
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  background: var(--ink);
+  color: var(--sheet);
+  padding: 13px 18px;
+  border-radius: 2px;
+  font: 500 13px/1.3 var(--sans);
+  box-shadow: 0 8px 26px rgba(21, 26, 23, 0.24);
+  animation: toast-in 160ms ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 620px) {
+  .toast { left: 16px; right: 16px; bottom: 16px; text-align: center; }
+}
+
+/* ------------------------------------------------------------
    Motion — only where it explains a change
    ------------------------------------------------------------ */
 

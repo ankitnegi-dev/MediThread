@@ -27,15 +27,17 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 1. **📜 Timeline + trends** — search “HbA1c”, filter Labs, open any record. HbA1c 8.1 → 6.8 and Creatinine SVG trend charts prove control without repeating tests.
 2. **📤 Upload** — type a filename like `hba1c-oct.pdf` → *Simulate AI parse* → duplicate guard fires if that test was done recently (“already done 22 days ago — share instead”).
 3. **💊 Meds & Safety** — try adding `Ibuprofen` → HIGH-RISK Telmisartan interaction blocks with explanation + safer alternative. Try `Paracetamol` → green ✅.
-4. **🔗 Share** — select 3 records → 24h link → copy `…#/shared/<token>` → open in incognito as doctor → revoke → link dies with “revoked” message. Audit log records everything.
-5. **🩺 Doctor** (`#/doctor`) — paste share code → sees *only* shared records → adds a note → it lands in the patient timeline (continuity, not scratch).
+4. **🔗 Share** — select 3 records → 24h link → copy `…#/shared/<token>` → **open the link on your phone over mobile data** (or a second browser with no MediThread data): the records still render, because they travel inside the link. Revoke → the UI states plainly that revocation is enforced locally in this demo. The access log records every open.
+5. **🩺 Doctor** (`#/doctor`) — paste the share code → sees *only* the shared records, plus the patient's summary carried in the link → builds a **note code** → sends it to the patient, who pastes it into their timeline (continuity, not scratch).
 6. **🚨 Emergency** (`#/emergency`, PIN `2481`) — allergies + meds + blood group + last 5 records, QR printable for wallet/phone. Export JSON / print summary.
 
 ## 3. Tech & architecture
 
 - **Frontend-only static app** — React 18 + Vite 5 + React Router (HashRouter so `dist/index.html` works on any host without rewrites) + `qrcode.react`. No backend → zero setup for judges, local-first privacy story.
 - **Persistence:** `localStorage` (`medithread:v1`) — patient, records, shares, audit. Reset button restores seeded demo.
-- **Share tokens:** self-contained `base64url({sid, exp, ids})`, validated against local registry for expiry + revocation (real deployment: sign with server secret / encrypt payload).
+- **Share tokens (cross-device):** v2 token is `lz-string(deflate)` over JSON carrying the patient summary **and the selected record payloads**, so a link opens on any device with an empty localStorage. Validated for expiry, malformed input and local revocation. The emergency PIN is deliberately never embedded in a link.
+- **Revocation — honest limit:** there is no server, so there is no central consent registry. Revoking blocks the link **in the browser that issued it**; until the link expires on its own, it will still open elsewhere. Production uses a server-side consent registry.
+- **Doctor → patient continuity:** with no backend a doctor cannot write into the patient's chart. The Doctor view produces an `mtn1:` **note code**; the patient pastes it under *Sharing → Receive a note* and it joins the timeline.
 - **Clinical rules:** `src/utils/medSafety.js` — curated interaction pairs + per-test repeat windows. Illustrative, not medical advice; production would plug DrugBank / CDS Hooks + FHIR.
 - **Charts:** hand-rolled SVG (zero chart deps) — deliberate for offline reliability.
 
@@ -48,7 +50,7 @@ src/
   data/seed.js            10-record scattered demo history
   utils/store.js          localStorage CRUD + audit
   utils/medSafety.js      interactions + duplicate-test + simulated parse
-  utils/share.js          token encode / validate / expiry options
+  utils/share.js          v2 self-contained token encode / validate + note codes
 ```
 
 ## 4. Setup & run
@@ -59,6 +61,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # → dist/ (deploy this folder)
 npm run preview  # serve dist locally
+npm test         # Vitest — share-token encode/decode/expiry/malformed/revoked
 ```
 
 **Deploy (any one):**
@@ -68,7 +71,7 @@ npm run preview  # serve dist locally
 
 ## 5. Open-source disclosure
 
-React, React-DOM, React-Router-DOM, Vite, @vitejs/plugin-react, qrcode.react — all MIT/standard OSS. No hospital systems integrated (per brief: simulated/public data only). No real patient data; all records fictional.
+React, React-DOM, React-Router-DOM, Vite, @vitejs/plugin-react, qrcode.react, **lz-string** (share-token deflate compression, MIT), **Vitest** (test runner, MIT) — all MIT/standard OSS. No hospital systems integrated (per brief: simulated/public data only). No real patient data; all records fictional.
 
 ## 6. Evaluation lens
 
