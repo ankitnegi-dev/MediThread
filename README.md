@@ -1,12 +1,19 @@
-# 🧵 MediThread — Own Your Health History
+# 🧵 MediThread: Own Your Health History
 
 > **Hackathon:** 24-Hour Web Development Hackathon · IIITDM Kancheepuram
-> **Domain:** HealthTech
-> **Problem:** *Lost in Transit: Fragmented Medical Records and Repeated Care Across Providers*
+> **Domain:** HealthTech · **Problem:** *Lost in Transit: Fragmented Medical Records and Repeated Care Across Providers*
 
-One timeline for your entire health history. Upload once, carry everywhere, share safely — no more folders, WhatsApp forwards, or starting from scratch at every new doctor.
+| | |
+|---|---|
+| **Live demo** | https://medi-thread-five.vercel.app |
+| **Demo video** | [Watch the 2–5 min walkthrough](./demo-video.mp4) |
+| **Source code** | https://github.com/ankitnegi-dev/MediThread |
+| **Team** | <Team name> |
 
-**Live demo:** deploy `dist/` to any static host (Vercel / Netlify / GitHub Pages) — no backend, no login, judges can use instantly.
+### Judge quick-start
+1. Open the live demo (no login or setup needed).
+2. Patient tab → Sharing → create a 24h link → open it in the Doctor tab or on another device.
+3. Emergency tab → PIN `2481`.
 
 ---
 
@@ -86,11 +93,16 @@ OCR downloads its language packs (English, हिन्दी, தமிழி) 
 - **Feasibility:** static deploy, FHIR/ABDM-ready model (`patient/records/shares` maps to Consent + DocumentReference), Hindi/Tamil i18n + OCR + SMS fallback as next steps.
 - **Future:** backend (Supabase/FHIR), e-sign consent, ABDM Health ID link, lab API ingestion, multilingual voice recall.
 
-## 7. Team
+## Team <Team name>
 
-ANKIT NEGI
-PRINCE KUMAR 
-GOPAL NIHAL
+| Name | Role | Contribution | GitHub |
+|---|---|---|---|
+| Ankit Negi (Team Leader) | Full-stack developer | Architecture, sharing flow, deployment | [@ankitnegi-dev](https://github.com/ankitnegi-dev) |
+| Prince KUmar | Frontend / UI | Design system, emergency card | [@poddarchhatri-source](https://github.com/poddarchhatri-source) |
+| Gopoal Nihal | Clinical logic | Interaction and duplicate-test rules, seed data | [@gopal1nihal](https://github.com/gopal1nihal) |
+
+**Institution:** Indian Institute of Information Technology, Design and Manufacturing, Kancheepuram 
+**Contact:** <cs24i1007@iiitdm.ac.in>
 
 ---
 *Disclaimer: demo clinical rules are illustrative for a hackathon, not medical advice.*
