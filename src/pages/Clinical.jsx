@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TimelineItem } from '../components/ui.jsx'
-import { b64urlDecode, validateShareToken } from '../utils/share.js'
+import { validateShareToken } from '../utils/share.js'
 import { addAudit } from '../utils/store.js'
 import { checkInteractions } from '../utils/medSafety.js'
 
-// Doctor portal: paste a share code OR browse demo patient with consent simulation.
 export function Doctor({ state, setState }) {
   const [code, setCode] = useState('')
   const [result, setResult] = useState(null)
@@ -13,17 +12,17 @@ export function Doctor({ state, setState }) {
   const nav = useNavigate()
 
   const open = () => {
-    const token = code.trim().split('/').pop()
+    const token = code.trim().split('/').filter(Boolean).pop()
     const v = validateShareToken(token, state)
     if (!v.ok) { setResult(v); return }
     const next = { ...state, shares: state.shares.map((s) => (s.id === v.share.id ? { ...s, accesses: s.accesses + 1 } : s)) }
-    addAudit(next, `Doctor viewed share: ${v.share.label}`)
+    addAudit(next, `Doctor opened share: ${v.share.label}`)
     setState(next)
     setResult(v)
   }
 
   const addRecord = () => {
-    if (!newNote.title) { alert('Add a title'); return }
+    if (!newNote.title) { alert('Add a title.'); return }
     const rec = {
       id: `rec-${Math.random().toString(36).slice(2, 8)}`,
       type: newNote.type,
@@ -31,66 +30,155 @@ export function Doctor({ state, setState }) {
       provider: 'Fortis OPD, Bengaluru — Dr. P. Iyer (via share)',
       title: newNote.title,
       notes: newNote.notes,
-      source: 'Doctor-added via MediThread'
+      source: 'Added by doctor through MediThread'
     }
     const next = { ...state, records: [rec, ...state.records] }
     addAudit(next, `Doctor added record: ${rec.title}`)
     setState(next); setNewNote({ title: '', notes: '', type: 'prescription' })
-    alert('Added to patient timeline ✅ — continuity preserved, no scratch start.')
+    alert('Added to the patient chart.')
   }
 
   return (
     <div>
-      <div className="topbar"><div>
-        <h2>🩺 Doctor portal</h2>
-        <p>Paste the patient's expiring share code. You see <i>only</i> what they shared, only until expiry. Every view is logged. Add your note straight to their timeline.</p>
-      </div></div>
-
-      <div className="card" style={{ marginBottom: 14 }}>
-        <label>Paste share link / token</label>
-        <div className="row">
-          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. #/shared/eyJzaWQiOi…" />
-          <button className="btn" style={{ maxWidth: 160 }} onClick={open}>Open records</button>
-        </div>
-        <div className="muted" style={{ marginTop: 8 }}>
-          Demo shortcut: create a link in Patient → Share tab, or try emergency view: <a href="#/emergency"> #/emergency (PIN 2481)</a>
-        </div>
-        {result && !result.ok && <div className="alert red">⛔ {result.reason}</div>}
-      </div>
-
-      {result?.ok && (
+      <header className="chart-head">
         <div>
-          <div className="alert green">✅ Verified share: <b>{result.share.label}</b> · expires {new Date(result.share.expiresAt).toLocaleString()} · {result.records.length} records</div>
-          <PatientSummary state={state} />
-          <div className="timeline" style={{ marginTop: 12 }}>
-            {result.records.sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => <TimelineItem key={r.id} r={r} />)}
-          </div>
-          <div className="card" style={{ marginTop: 12 }}>
-            <h3>➕ Add consultation note (writes to unified timeline)</h3>
-            <div className="row">
-              <div><label>Type</label><select value={newNote.type} onChange={(e) => setNewNote({ ...newNote, type: e.target.value })}><option value="prescription">Prescription</option><option value="lab">Lab order</option><option value="note">Note</option></select></div>
-              <div style={{ flex: 2 }}><label>Title (try “Paracetamol 650mg” — safe alternative)</label><input value={newNote.title} onChange={(e) => setNewNote({ ...newNote, title: e.target.value })} placeholder="e.g. Paracetamol 650mg SOS" /></div>
-            </div>
-            <label>Notes</label><textarea value={newNote.notes} onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })} placeholder="Advice, dosage…" />
-            {newNote.title && (
-              (() => {
-                const hits = checkInteractions(state.patient.currentMeds, newNote.title.split(' ')[0])
-                return hits.length ? <div className="alert red">⚠️ {hits.map((h) => h.msg).join(' ')}</div> : <div className="alert green">✅ No interaction with current meds.</div>
-              })()
-            )}
-            <div style={{ marginTop: 8 }}><button className="btn" onClick={addRecord}>Save to patient timeline</button></div>
-          </div>
+          <p className="kicker">Clinician access</p>
+          <h1>Doctor</h1>
+          <p className="meta">
+            Open the patient&rsquo;s share link to see only the records they chose, until the link expires.
+            Every open is logged on their side.
+          </p>
         </div>
-      )}
+        <dl className="figures">
+          <div>
+            <dt>Shares given</dt>
+            <dd>{state.shares.length}</dd>
+            <p>{state.shares.filter((s) => !s.revoked && new Date(s.expiresAt) > new Date()).length} still live</p>
+          </div>
+          <div>
+            <dt>Views logged</dt>
+            <dd>{state.shares.reduce((n, s) => n + s.accesses, 0)}</dd>
+            <p>counted per share</p>
+          </div>
+        </dl>
+      </header>
 
-      {!result && (
-        <div className="card">
-          <h3>Full demo timeline (with simulated consent)</h3>
-          <div className="muted">In production this list would be hidden until the patient shares. Shown here so judges can explore without a second device.</div>
-          <PatientSummary state={state} />
-          <div style={{ marginTop: 10 }}><button className="btn secondary small" onClick={() => nav('/')}>Back to patient view</button></div>
-        </div>
-      )}
+      <div style={{ marginTop: 30 }}>
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Open a share</h2>
+            <span className="hint">paste the link or token</span>
+          </div>
+          <div className="panel-pad">
+            <div className="row">
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Paste the patient&rsquo;s share link"
+                aria-label="Share link or token"
+              />
+              <button className="btn" style={{ flex: '0 0 auto' }} onClick={open} disabled={!code.trim()}>Open records</button>
+            </div>
+
+            {result && !result.ok && (
+              <div className="notice crit" style={{ marginTop: 16 }}>
+                <span className="lead">Cannot open</span>
+                {result.reason}
+              </div>
+            )}
+
+            <p className="fineprint">
+              For the demo: create a link in the Patient tab, then paste it here. The emergency view at{' '}
+              <a href="#/emergency">#/emergency</a> is PIN-gated and does not need a share.
+            </p>
+          </div>
+        </section>
+
+        {result?.ok && (
+          <div style={{ marginTop: 30 }}>
+            <div className="notice ok" style={{ marginBottom: 26 }}>
+              <span className="lead">Share verified</span>
+              <b>{result.share.label}</b> — {result.records.length} records, expires{' '}
+              {new Date(result.share.expiresAt).toLocaleString()}. Your open has been logged.
+            </div>
+
+            <PatientSummary state={state} />
+
+            <p className="sec-title" style={{ marginTop: 30 }}>
+              Shared records
+              <span className="hint">newest first</span>
+            </p>
+            <div className="spine">
+              {result.records.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
+                <TimelineItem key={r.id} r={r} />
+              ))}
+            </div>
+
+            <section className="panel" style={{ marginTop: 30 }}>
+              <div className="panel-head">
+                <h2>Add to the patient&rsquo;s chart</h2>
+                <span className="hint">continuity</span>
+              </div>
+              <div className="panel-pad">
+                <div className="row">
+                  <div>
+                    <label htmlFor="d-type">Type</label>
+                    <select id="d-type" value={newNote.type} onChange={(e) => setNewNote({ ...newNote, type: e.target.value })}>
+                      <option value="prescription">Prescription</option>
+                      <option value="lab">Lab order</option>
+                      <option value="note">Note</option>
+                    </select>
+                  </div>
+                  <div style={{ flex: 2 }}>
+                    <label htmlFor="d-title">Title</label>
+                    <input id="d-title" value={newNote.title} onChange={(e) => setNewNote({ ...newNote, title: e.target.value })} placeholder="Paracetamol 650mg SOS" />
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="d-notes">Notes</label>
+                  <textarea id="d-notes" value={newNote.notes} onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })} placeholder="Advice, dosage, follow-up." />
+                </div>
+
+                {newNote.title && (() => {
+                  const hits = checkInteractions(state.patient.currentMeds, newNote.title.split(' ')[0])
+                  return hits.length ? (
+                    <div className="notice crit" style={{ marginTop: 16 }}>
+                      <span className="lead">Interaction with their current medicines</span>
+                      {hits.map((h) => h.msg).join(' ')}
+                    </div>
+                  ) : (
+                    <div className="notice ok" style={{ marginTop: 16 }}>
+                      <span className="lead">Clear</span>
+                      No known interaction with their current medicines.
+                    </div>
+                  )
+                })()}
+
+                <div className="btn-row">
+                  <button className="btn" onClick={addRecord} disabled={!newNote.title}>Save to the chart</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {!result && (
+          <section className="panel" style={{ marginTop: 30 }}>
+            <div className="panel-head"><h2>Consent simulation</h2></div>
+            <div className="panel-pad">
+              <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'var(--ink-80)' }}>
+                In production this screen shows nothing until a patient shares. It is visible here so a
+                judge can explore the flow from one device.
+              </p>
+              <PatientSummary state={state} />
+              <div className="btn-row">
+                <button className="btn quiet" onClick={() => nav('/')}>Back to the patient chart</button>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
@@ -98,79 +186,161 @@ export function Doctor({ state, setState }) {
 export function PatientSummary({ state }) {
   const p = state.patient
   return (
-    <div className="grid grid-3" style={{ marginTop: 10 }}>
-      <div className="card"><h3>👤 {p.name}</h3><div className="muted">{p.age}F · {p.bloodGroup} · {p.city}</div><div className="muted">{p.conditions.join(' · ')}</div></div>
-      <div className="card"><h3>⚠️ Allergies</h3><div><b>{p.allergies.join(', ')}</b></div><div className="muted" style={{ marginTop: 6 }}>Meds: {p.currentMeds.map((m) => `${m.name} ${m.dose}`).join(', ')}</div></div>
-      <div className="card"><h3>📞 Emergency</h3><div style={{ fontSize: 13 }}>{p.emergencyContact}</div><div className="muted">PIN-gated ER view, no login needed</div></div>
+    <div className="panel">
+      <div className="panel-head"><h2>Before you start</h2></div>
+      <div className="panel-pad">
+        <dl className="deflist">
+          <div>
+            <dt>Patient</dt>
+            <dd><b>{p.name}</b>, {p.age}, {p.sex}. Blood {p.bloodGroup}. {p.city}. {p.conditions.join(', ')}.</dd>
+          </div>
+          <div>
+            <dt>Allergies</dt>
+            <dd><b>{p.allergies.join(', ')}</b></dd>
+          </div>
+          <div>
+            <dt>Current medicines</dt>
+            <dd>{p.currentMeds.map((m) => `${m.name} ${m.dose}, ${m.freq}`).join(' · ')}</dd>
+          </div>
+          <div>
+            <dt>Emergency contact</dt>
+            <dd>{p.emergencyContact}</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   )
 }
 
-// Public shared-link view — anyone with link, validated, read-only.
 export function Shared({ state, setState }) {
   const { token } = useParams()
   const v = validateShareToken(token, state)
+
   React.useEffect(() => {
-    if (v.ok) {
-      const next = { ...state, shares: state.shares.map((s) => (s.id === v.share.id ? { ...s, accesses: s.accesses + 1 } : s)) }
-      // avoid infinite loop: only bump once per token via sessionStorage
-      const k = `viewed:${v.share.id}:${token.slice(0, 12)}`
-      if (!sessionStorage.getItem(k)) {
-        sessionStorage.setItem(k, '1')
-        setState(next)
-      }
-    }
-    // eslint-disable-next-line
+    if (!v.ok) return
+    const k = `viewed:${v.share.id}:${token.slice(0, 12)}`
+    if (sessionStorage.getItem(k)) return
+    sessionStorage.setItem(k, '1')
+    const next = { ...state, shares: state.shares.map((s) => (s.id === v.share.id ? { ...s, accesses: s.accesses + 1 } : s)) }
+    setState(next)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
-  if (!v.ok) return <div className="card"><h2>🔗 Shared records</h2><div className="alert red">{v.reason}</div><a href="#/">← Back to MediThread</a></div>
-  return (
-    <div>
-      <div className="topbar"><div>
-        <h2>🔗 Shared by {state.patient.name}</h2>
-        <p>{v.share.label} · {v.records.length} records · expires {new Date(v.share.expiresAt).toLocaleString()} · read-only · access logged</p>
-      </div></div>
-      <PatientSummary state={state} />
-      <div className="timeline" style={{ marginTop: 12 }}>
-        {v.records.sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => <TimelineItem key={r.id} r={r} />)}
-      </div>
-      <div className="foot-note">MediThread · consent-based sharing · revoke anytime from patient app</div>
-    </div>
-  )
-}
-
-// PIN-gated emergency view.
-export function Emergency({ state }) {
-  const [pin, setPin] = useState('')
-  const [unlocked, setUnlocked] = useState(false)
-  const p = state.patient
-  const latest = [...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5)
-
-  if (!unlocked) {
+  if (!v.ok) {
     return (
-      <div className="card" style={{ maxWidth: 480, margin: '40px auto' }}>
-        <h2>🚨 Emergency access</h2>
-        <p className="muted">For first responders. Enter the 4-digit ER PIN shown on the patient's card/QR. No login. Read-only. Logged.</p>
-        <label>ER PIN (demo: 2481)</label>
-        <input value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" placeholder="••••" />
-        <div style={{ marginTop: 10 }}><button className="btn" onClick={() => (pin.trim() === p.emergencyPin ? setUnlocked(true) : alert('Wrong PIN'))}>Unlock critical info</button></div>
-        <div className="muted" style={{ marginTop: 10 }}><a href="#/">← Back</a></div>
+      <div style={{ maxWidth: 520, margin: '56px auto' }}>
+        <p className="kicker">Shared records</p>
+        <h1 style={{ font: '600 32px/1.1 var(--serif)', marginBottom: 18 }}>This link no longer works</h1>
+        <div className="notice crit">
+          <span className="lead">Cannot open</span>
+          {v.reason}
+        </div>
+        <div className="btn-row"><a className="btn quiet" href="#/">Go to MediThread</a></div>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="alert red" style={{ fontSize: 15 }}>
-        🚨 <b>{p.name}</b> · {p.age}F · Blood <b>{p.bloodGroup}</b><br />
-        Conditions: {p.conditions.join(', ')} · Allergies: <b>{p.allergies.join(', ')}</b><br />
-        Current meds: <b>{p.currentMeds.map((m) => `${m.name} ${m.dose} (${m.freq})`).join(' · ')}</b><br />
-        Contact: {p.emergencyContact}
+      <header className="chart-head">
+        <div>
+          <p className="kicker">Shared by {state.patient.name}</p>
+          <h1>{v.share.label}</h1>
+          <p className="meta">
+            {v.records.length} records. Expires {new Date(v.share.expiresAt).toLocaleString()}.
+            Read only, and this open has been logged on the patient&rsquo;s side.
+          </p>
+        </div>
+      </header>
+
+      <div style={{ marginTop: 30 }}>
+        <PatientSummary state={state} />
+        <p className="sec-title" style={{ marginTop: 30 }}>
+          What was shared
+          <span className="hint">{v.records.length} records</span>
+        </p>
+        <div className="spine">
+          {v.records.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
+            <TimelineItem key={r.id} r={r} />
+          ))}
+        </div>
       </div>
-      <div className="card">
-        <h3>Latest 5 records (no repeats needed)</h3>
-        <div className="timeline">{latest.map((r) => <TimelineItem key={r.id} r={r} />)}</div>
+    </div>
+  )
+}
+
+export function Emergency({ state }) {
+  const [pin, setPin] = useState('')
+  const [unlocked, setUnlocked] = useState(false)
+  const [err, setErr] = useState('')
+  const p = state.patient
+  const latest = [...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5)
+
+  const tryUnlock = () => {
+    if (pin.trim() === p.emergencyPin) setUnlocked(true)
+    else setErr('That PIN does not match. The patient&rsquo;s card shows four digits.')
+  }
+
+  if (!unlocked) {
+    return (
+      <div className="pinwrap">
+        <p className="kicker" style={{ color: 'var(--stamp)' }}>For first responders</p>
+        <h1 style={{ font: '600 32px/1.12 var(--serif)', marginBottom: 12 }}>Emergency access</h1>
+        <p className="meta" style={{ color: 'var(--ink-60)', marginBottom: 24 }}>
+          Enter the four-digit PIN on the patient&rsquo;s card. No login, read only, and the open is
+          recorded on their chart.
+        </p>
+        <label htmlFor="pin">Patient PIN</label>
+        <input
+          id="pin"
+          className="pininput"
+          value={pin}
+          inputMode="numeric"
+          maxLength={4}
+          autoComplete="off"
+          placeholder="0000"
+          onChange={(e) => { setPin(e.target.value.replace(/\D/g, '')); setErr('') }}
+          onKeyDown={(e) => { if (e.key === 'Enter') tryUnlock() }}
+        />
+        {err && (
+          <div className="notice crit" style={{ marginTop: 14 }}>
+            <span className="lead">Not unlocked</span>{err}
+          </div>
+        )}
+        <div className="btn-row">
+          <button className="btn" onClick={tryUnlock} disabled={pin.length !== 4}>Unlock</button>
+          <a className="btn quiet" href="#/">Go back</a>
+        </div>
+        <p className="fineprint">The demo PIN is <code className="inline">{p.emergencyPin}</code>.</p>
       </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="ercard">
+        <p className="kicker" style={{ color: 'var(--stamp)' }}>Critical information</p>
+        <h2>{p.name}</h2>
+        <p className="meta">{p.age} years, {p.sex}. {p.city}.</p>
+        <p className="big">{p.bloodGroup}</p>
+        <p className="mono-hint">blood group</p>
+        <dl>
+          <div className="rowline"><dt>Conditions</dt><dd>{p.conditions.join(', ')}</dd></div>
+          <div className="rowline"><dt>Allergies</dt><dd><b>{p.allergies.join(', ')}</b></dd></div>
+          <div className="rowline"><dt>Medicines</dt><dd>{p.currentMeds.map((m) => `${m.name} ${m.dose} (${m.freq})`).join(' · ')}</dd></div>
+          <div className="rowline"><dt>Contact</dt><dd>{p.emergencyContact}</dd></div>
+        </dl>
+      </div>
+
+      <p className="sec-title" style={{ marginTop: 34 }}>
+        Recent history
+        <span className="hint">read only</span>
+      </p>
+      <div className="spine">
+        {latest.map((r) => <TimelineItem key={r.id} r={r} />)}
+      </div>
+
+      <div className="btn-row"><a className="btn quiet" href="#/">Lock and leave</a></div>
     </div>
   )
 }
