@@ -6,9 +6,9 @@
 | | |
 |---|---|
 | **Live demo** | https://medi-thread-five.vercel.app |
-| **Demo video** | [Watch the 2–5 min walkthrough](./demo-video.mp4) |
+| **Demo video** | [Watch the 2–5 min walkthrough](https://drive.google.com/drive/folders/1-Cv-x50zltGIfTR45hnLoFrwb1lZxzLn?usp=drive_link) |
 | **Source code** | https://github.com/ankitnegi-dev/MediThread |
-| **Team** | <Team name> |
+| **Team** | XYZ |
 
 ### Judge quick-start
 1. Open the live demo (no login or setup needed).
@@ -102,6 +102,7 @@ OCR downloads its language packs (English, हिन्दी, தமிழி) 
 | Gopoal Nihal | Clinical logic | Interaction and duplicate-test rules, seed data | [@gopal1nihal](https://github.com/gopal1nihal) |
 
 **Institution:** Indian Institute of Information Technology, Design and Manufacturing, Kancheepuram 
+
 **Contact:** <cs24i1007@iiitdm.ac.in>
 
 ---
