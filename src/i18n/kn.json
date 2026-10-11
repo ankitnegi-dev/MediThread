@@ -5,14 +5,12 @@
   "app.patientId": "{name}, {age}",
   "app.language": "ಭಾಷೆ",
   "app.colophon": "MediThread - IIITDM HealthTech, \"Lost in Transit\". ಮಾದರಿ ಡೇಟಾ ಮಾತ್ರ. ಔಷಧಿ ಅನ್ಯರ್ಥ ಮತ್ತು ಪುನರಾವರ್ತನೆ ಪರೀಕ್ಷೆ ನಿಯಮಗಳು ಉದಾಹರಣೆಗಳಷ್ಟೇ, ವೈದ್ಯೋಚಿತ ಸಲಹೆ ಅಲ್ಲ.",
-
   "nav.patient": "ರೋಗಿ",
   "nav.patientHint": "ಚಾರ್ಟ್",
   "nav.doctor": "ವೈದ್ಯ",
   "nav.doctorHint": "ಸಮ್ಮತಿಯೊಂದಿಗೆ",
   "nav.emergency": "ತುರ್ತು",
   "nav.emergencyHint": "PIN ಮೂಲಕ",
-
   "common.close": "ಮುಚ್ಚಿ",
   "common.print": "ಮುದ್ರಿಸಿ",
   "common.search": "ಹುಡುಕಿ",
@@ -21,7 +19,6 @@
   "common.readOnly": "ಓದಲು ಮಾತ್ರ",
   "common.pasteLink": "ಲಿಂಕ್ ಇಲ್ಲಿ ಅಂಟಿ",
   "common.savePDF": "ಮುದ್ರಿಸಿ / PDF ಉಳಿಸಿ",
-
   "chart.kicker": "ರೋಗಿಯ ಚಾರ್ಟ್",
   "chart.records": "ದಾಖಲೆಗಳು",
   "chart.recordsSub": "{n} ಪೂರೈಕೆದಾರರು, ಒಂದೇ ಚಾರ್ಟ್",
@@ -31,20 +28,17 @@
   "chart.sharesSub": "ಅವಧಿ ಮುಗಿಯುತ್ತದೆ, ರದ್ದುಮಾಡಬಹುದು, ದಾಖಲಾಗುತ್ತದೆ",
   "chart.age": "{age} ವರ್ಷ, {sex}",
   "chart.blood": "ರಕ್ತ {group}",
-
   "tab.timeline": "ಕಾಲಕ್ರಮ",
   "tab.meds": "ಔಷಧಿಗಳು",
   "tab.share": "ಹಂಚಿಕೆ",
   "tab.emergency": "ತುರ್ತು ಕಾರ್ಡ್",
   "tab.upload": "ದಾಖಲೆ ಸೇರಿಸಿ",
-
   "type.prescription": "ಔಷಧಿ ಪತ್ರ",
   "type.lab": "ಪ್ರಯೋಗ ಫಲಿತಾಂಶ",
   "type.scan": "ಸ್ಕ್ಯಾನ್",
   "type.discharge": "ಬಿಡುಗಡೆ",
   "type.note": "ಟಿಪ್ಪಣಿ",
   "type.digital": "ಡಿಜಿಟಲ್",
-
   "timeline.title": "ಈ ದಾರಿ",
   "timeline.count": "{total} ರಲ್ಲಿ {shown} ದಾಖಲೆಗಳು",
   "timeline.searchLabel": "ಚಾರ್ಟ್‌ನಲ್ಲಿ ಹುಡುಕಿ",
@@ -60,14 +54,12 @@
   "timeline.docOmitted": "ಮೂಲ ಕಡತ ಸೇರಿಸಿಲ್ಲ - ಅದರ ಬದಲು ಹೆಚ್ಚಿದ ಮೌಲ್ಯಗಳನ್ನು ಹಂಚಿಕೆ ಮಾಡಲಾಗಿದೆ.",
   "timeline.flag": "ಎಚ್ಚರಿಕೆ",
   "timeline.medsFound": "ಔಷಧಿಗಳು",
-
   "labs.title": "ಪ್ರಯೋಗ ಪ್ರವೃತ್ತಿ",
   "labs.hint": "ಮತ್ತೆ ಪರೀಕ್ಷೆ ಅಗತ್ಯವಿಲ್ಲ",
   "labs.needTwo": "{test} ಒಂದೇ ಫಲಿತಾಂಶ ಇದೆ. ಪ್ರವೃತ್ತಿಗೆ ಎರಡು ಅಥವಾ ಹೆಚ್ಚು ಬೇಕು.",
   "labs.trend": "{n} ಫಲಿತಾಂಶಗಳು, {from} ರಿಂದ {to}{unit} ವರೆಗೆ.",
   "labs.improving": "ಮೊದಲ ಫಲಿತಾಂಶದಿಂದ ಸತತ ಸುಧಾರ - ಮತ್ತೆ ಪರೀಕ್ಷಿಸದೆ ಇದನ್ನು ಹಂಚಿಕೆ ಮಾಡಿ.",
   "labs.neutral": "ಮತ್ತೆ ಪರೀಕ್ಷಿಸದೆ ಈ ಪ್ರವೃತ್ತಿಯನ್ನು ಮುಂದಿನ ವೈದ್ಯರಿಗೆ ಹಂಚಿಕೆ ಮಾಡಿ.",
-
   "demo.title": "ಈ ಡೆಮೊ ಏನು ತೋರಿಸುತ್ತದೆ",
   "demo.lost": "ದಾರಿಯಲ್ಲಿ ಕಳೆದುಹೋಗುವುದು",
   "demo.lostBody": "ಹತ್ತು ಬೇರೆ ಬೇರೆ ಪೂರೈಕೆದಾರರ ಕಾಗದ ಚೀಟಿಗಳು, PDF, ಫೋಟೋಗಳು ಒಂದೇ ಹುಡುಕಬಹುದಾದ ಚಾರ್ಟ್‌ನಲ್ಲಿ ಸೇರುತ್ತವೆ.",
@@ -78,7 +70,6 @@
   "demo.insecure": "ಅಸುರಕ್ಷಿತ ಹಂಚಿಕೆ",
   "demo.insecureBody": "ಹಂಚಿಕೆಗಳ ಅವಧಿ ಮುಗಿಯುತ್ತದೆ, ರದ್ದುಮಾಡಬಹುದು, ಮತ್ತು ಪ್ರತಿ ನೋಟ ದಾಖಲಾಗುತ್ತದೆ.",
   "demo.note": "IIITDM HealthTech ಅಭಿವೃದ್ಧಿ, \"Lost in Transit\" ಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ.",
-
   "meds.title": "ಪ್ರಸ್ತುತ ಬಳಸುತ್ತಿರುವ ಔಷಧಿಗಳು",
   "meds.hint": "ತುರ್ತಿನಲ್ಲಿ ಬೇಕಾದ ಪಟ್ಟಿ",
   "meds.col1": "ಔಷಧಿ",
@@ -100,7 +91,6 @@
   "meds.windows": "ಪುನರಾವರ್ತನೆ ಪರೀಕ್ಷೆಗಳನ್ನು ಪ್ರತಿ ಪರೀಕ್ಷೆಯ ಅವಧಿ ಮಿತಿಗಳಿಂದ ಪರಿಶೀಲಿಸಲಾಗುತ್ತದೆ - HbA1c 90 ದಿನ, creatinine 60, LDL 120. ಮೂರು ವಾರಗಳ ನಂತರ ಮತ್ತೆ HbA1c ಆದೇಶಿಸುವ ವೈದ್ಯರಿಗೆ ಹಳೆಯ ಫಲಿತಾಂಶ ನೋಡುವ ಸೂಚನೆ ಸಿಗುತ್ತದೆ.",
   "meds.scope": "ವ್ಯಾಪ್ತಿ",
   "meds.scopeBody": "ಇಲ್ಲಿನ ನಿಯಮಗಳ ಸಮೂಹ ಉದಾಹರಣೆಯಾಗಿದೆ. ನಿಜವಾದ ಬಳಕೆಯಲ್ಲಿ ಅನುಮೋದಿತ ಔಷಧಿ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಕ್ಲಿನಿಕಲ್ ನಿರ್ಣಯ ಬೆಂಬಲ ನಿಯಮಗಳು ಬಳಸಲಾಗುತ್ತವೆ.",
-
   "share.title": "ಹಂಚಿಕೆ ಲಿಂಕ್ ರಚಿಸಿ",
   "share.hint": "ಯಾವುದೇ ಸಾಧನದಲ್ಲಿ ತೆರೆಯುತ್ತದೆ",
   "share.who": "ಯಾರಿಗೆ",
@@ -136,7 +126,6 @@
   "share.expiry1": "1 ಗಂಟೆ - ತುರ್ತು ಅಥವಾ ER ಭೇಟಿ",
   "share.expiry24": "24 ಗಂಟೆ - ಒಂದು OPD ಸಲಹೆ",
   "share.expiry168": "7 ದಿನ - ಎರಡನೇ ಅಭಿಪ್ರಾಯ",
-
   "er.title": "ತುರ್ತು ಕಾರ್ಡ್",
   "er.critical": "ಮುಖ್ಯ ಮಾಹಿತಿ",
   "er.forResponders": "ಮೊದಲ ಸಹಾಯ ನೀಡುವವರಿಗಾಗಿ",
@@ -164,7 +153,6 @@
   "er.printCard": "ಈ ಕಾರ್ಡ್ ಮುದ್ರಿಸಿ",
   "er.bilingual": "ಇಂಗ್ಲಿಷ್‌ನಲ್ಲೂ ತೋರಿಸಿ",
   "er.urlLabel": "ವಿಳಾಸ",
-
   "upload.title": "ದಾಖಲೆ ಸೇರಿಸಿ",
   "upload.hint": "PDF ಅಥವಾ ಫೋಟೋ",
   "upload.drop": "ಕಡತವನ್ನು ಇಲ್ಲಿ ಬಿಡಿ ಅಥವಾ ಆಯ್ಕೆಮಾಡಿ",
@@ -216,7 +204,6 @@
   "upload.errNetwork": "ಪಠ್ಯವನ್ನು ಗುರುತಿಸಲು ಒಮ್ಮೆ ಭಾಷಾ ಡೇಟಾ ಡೌನ್‌ಲೋಡ್ ಆಗಬೇಕು, ಅದು ನೆಟ್‌ವರ್ಕ್ ತಲುಪಲಿಲ್ಲ. ಫಾರ್ಮ್ ತುಂಬಾಗಿ ಮುಂದುವರಿಸಿ.",
   "upload.errUnreadable": "ಈ ಕಡತವನ್ನು ಓದಲಾಗಲಿಲ್ಲ. ಫಾರ್ಮ್ ತುಂಬಾಗಿ ಮುಂದುವರಿಸಿ.",
   "upload.errNoValues": "ಈ ಕಡತದಿಂದ ಯಾವುದೇ ಮೌಲ್ಯ ಸಿಕ್ಕಿಲ್ಲ. ಫಾರ್ಮ್ ನೀವೇ ತುಂಬಿ - ಕೆಳಗಿನ ಎಲ್ಲವೂ ಬದಲಾಯಿಸಬಹುದು.",
-
   "doc.open": "ಹಂಚಿಕೆ ತೆರೆಯಿರಿ",
   "doc.openHint": "ಲಿಂಕ್ ಅಥವಾ ಕೋಡ್ ಅಂಟಿ",
   "doc.openBtn": "ದಾಖಲೆಗಳನ್ನು ತೆರೆಯಿರಿ",
@@ -251,7 +238,6 @@
   "doc.goToApp": "MediThread ಗೆ ಹೋಗಿ",
   "doc.sharedBy": "{name} ಹಂಚಿಕೆ ಮಾಡಿದ್ದಾರೆ",
   "doc.noteAdded": "ಟಿಪ್ಪಣಿ ಸೇರಿಸಲಾಗಿದೆ",
-
   "summary.title": "ವೈದ್ಯರ ಸಾರಾಂಶ",
   "summary.printBtn": "ಮುದ್ರಿಸಿ / PDF ಉಳಿಸಿ",
   "summary.lastResults": "ಇತ್ತೀಚಿನ ಫಲಿತಾಂಶಗಳು",
@@ -260,7 +246,6 @@
   "summary.abnormalNone": "ಸಮಯರೆಮ್ಮೆ ಹೊರಗಿನ ಯಾವುದೇ ಫಲಿತಾಂಶ ಗುರುತಿಸಲ್ಪಟ್ಟಿಲ್ಲ.",
   "summary.results": "ಫಲಿತಾಂಶಗಳು",
   "summary.dateCol": "ದಿನಾಂಕ",
-
   "toast.linkCreated": "ಲಿಂಕ್ ರಚಿತವಾಗಿದೆ",
   "toast.linkCopied": "ಲಿಂಕ್ ನಕಲಾಗಿದೆ",
   "toast.copyFailed": "ನಕಲಿಸಲಾಗಲಿಲ್ಲ - ಅದನ್ನು ಆಯ್ಕೆಮಾಡಿ ಕೈಯಿಂದಿ ನಕಲಿಸಿ",
@@ -271,15 +256,17 @@
   "toast.saved": "ನಿಮ್ಮ ಕಾಲಕ್ರಮಕ್ಕೆ ಉಳಿಸಲಾಗಿದೆ",
   "toast.exported": "ಚಾರ್ಟ್ ರಫ್ತು ಮಾಡಲಾಗಿದೆ",
   "toast.imported": "ಚಾರ್ಟ್ ಆಮದು ಮಾಡಲಾಗಿದೆ",
-
   "err.titleRequired": "ಒಂದು ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ.",
   "err.selectOne": "ಕನಿಷ್ಠ ಒಂದು ದಾಖಲೆ ಆಯ್ಕೆಮಾಡಿ.",
   "err.badJson": "ಈ ಕಡತ MediThread ಚಾರ್ಟ್ ಅಲ್ಲ.",
   "err.importFailed": "ಆಮದು ವಿಫಲವಾಗಿದೆ - {reason}",
-
   "cardonly.open": "ಕಾರ್ಡ್ ಮಾತ್ರ",
   "cardonly.close": "ಹಿಂತಿರುಗಿ",
   "cardonly.hintTitle": "iPhone ನಲ್ಲಿ ಮುದ್ರಿಸುವುದು",
   "cardonly.iosHint": "iPhone ವೆಬ್ ಪುಟದಿಂದ ಮುದ್ರಣ ವಿಂಡೋ ತೆರೆಯುವುದಿಲ್ಲ. Safari ನ Share ಬಟನ್ ಒತ್ತಿ ಆಯ್ಕೆಮಾಡಿ Print ಆರಿಸಿ, ಅಥವಾ ಈ ದೃಶ್ಯವನ್ನು ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ತೆಗೆಯಿರಿ - ಇಲ್ಲಿ ಕಾರ್ಡ್ ಮಾತ್ರ, ಸುತ್ತಲ್ಲಿ ಏನೂ ಇಲ್ಲ.",
-  "cardonly.hint": "ಈ ಕಾರ್ಡ್ ಅನ್ನು PDF ಆಗಿ ಉಳಿಸಲು ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ Print ಆದೇಶ ಬಳಸಿ."
+  "cardonly.hint": "ಈ ಕಾರ್ಡ್ ಅನ್ನು PDF ಆಗಿ ಉಳಿಸಲು ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ Print ಆದೇಶ ಬಳಸಿ.",
+  "upload.loadSample": "ಮಾದರಿ ಪ್ರಯೋಗ ವರದಿ ಲೋಡ್ ಮಾಡಿ",
+  "upload.sampleHint": "ಪಠ್ಯ ಪದರವಿರುವ ಒಂದು ಜೋಡಿತ PDF - ತಕ್ಷಣ ಓದಲಾಗುತ್ತದೆ, OCR ಡೌನ್‌ಲೋಡ್ ಅಗತ್ಯವಿಲ್ಲ. ಸ್ಥಳದ WiFi ನಿಧಾನವಾಗಿದ್ದರೆ ಇದನ್ನು ಬಳಸಿ.",
+  "upload.sampleLoaded": "ಮಾದರಿ ವರದಿ ಲೋಡ್ ಆಗಿದೆ",
+  "upload.sampleFailed": "ಮಾದರಿ ವರದಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ."
 }

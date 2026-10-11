@@ -5,14 +5,12 @@
   "app.patientId": "{name}, {age}",
   "app.language": "Language",
   "app.colophon": "MediThread - IIITDM HealthTech, \"Lost in Transit\". Sample data only. The interaction and duplicate-test rules are illustrative and are not medical advice.",
-
   "nav.patient": "Patient",
   "nav.patientHint": "the chart",
   "nav.doctor": "Doctor",
   "nav.doctorHint": "consent view",
   "nav.emergency": "Emergency",
   "nav.emergencyHint": "PIN gated",
-
   "common.close": "Close",
   "common.print": "Print",
   "common.search": "Search",
@@ -21,7 +19,6 @@
   "common.readOnly": "read only",
   "common.pasteLink": "Paste the link here",
   "common.savePDF": "Print / Save as PDF",
-
   "chart.kicker": "Patient chart",
   "chart.records": "Records",
   "chart.recordsSub": "{n} providers, one chart",
@@ -31,20 +28,17 @@
   "chart.sharesSub": "Expiring, revocable, logged",
   "chart.age": "{age} years, {sex}",
   "chart.blood": "Blood {group}",
-
   "tab.timeline": "Timeline",
   "tab.meds": "Medicines",
   "tab.share": "Sharing",
   "tab.emergency": "Emergency card",
   "tab.upload": "Add record",
-
   "type.prescription": "Prescription",
   "type.lab": "Lab result",
   "type.scan": "Scan",
   "type.discharge": "Discharge",
   "type.note": "Note",
   "type.digital": "Digital",
-
   "timeline.title": "The thread",
   "timeline.count": "{shown} of {total} records",
   "timeline.searchLabel": "Search the chart",
@@ -60,14 +54,12 @@
   "timeline.docOmitted": "Original file not included - the extracted values were shared instead.",
   "timeline.flag": "Flag",
   "timeline.medsFound": "Medicines",
-
   "labs.title": "Lab trends",
   "labs.hint": "no repeat needed",
   "labs.needTwo": "One {test} result on file. A trend needs two or more.",
   "labs.trend": "{n} results, {from} to {to}{unit}.",
   "labs.improving": "Trending down since the first result - share this instead of repeating the test.",
   "labs.neutral": "Share this trend with your next doctor rather than repeating the test.",
-
   "demo.title": "What this demo shows",
   "demo.lost": "Lost in transit",
   "demo.lostBody": "Paper slips, PDFs and photos from ten different providers end up in one searchable chart.",
@@ -78,7 +70,6 @@
   "demo.insecure": "Insecure forwarding",
   "demo.insecureBody": "Shares expire, can be revoked, and every view is written to the audit trail.",
   "demo.note": "Built for the IIITDM HealthTech brief, \"Lost in Transit\".",
-
   "meds.title": "Current medicines",
   "meds.hint": "the list an ER needs",
   "meds.col1": "Medicine",
@@ -100,7 +91,6 @@
   "meds.windows": "Duplicate tests are checked against per-test windows - HbA1c 90 days, creatinine 60, LDL 120. A doctor who orders an HbA1c three weeks after one already exists gets a nudge to open the existing result.",
   "meds.scope": "Scope",
   "meds.scopeBody": "The rule set here is illustrative. A real deployment would check against an approved drug database and clinical decision support rules.",
-
   "share.title": "Create a share",
   "share.hint": "works on any device",
   "share.who": "Who it is for",
@@ -136,7 +126,6 @@
   "share.expiry1": "1 hour - emergency or ER visit",
   "share.expiry24": "24 hours - one OPD consultation",
   "share.expiry168": "7 days - second opinion",
-
   "er.title": "Emergency card",
   "er.critical": "Critical information",
   "er.forResponders": "For first responders",
@@ -164,7 +153,6 @@
   "er.printCard": "Print this card",
   "er.bilingual": "Show also in English",
   "er.urlLabel": "Address",
-
   "upload.title": "Add a record",
   "upload.hint": "pdf or photo",
   "upload.drop": "Drop a file here, or choose one",
@@ -216,7 +204,6 @@
   "upload.errNetwork": "Text recognition needs to download its language data once, and it could not reach the network. Fill the form in by hand instead.",
   "upload.errUnreadable": "That file could not be read. Fill the form in by hand instead.",
   "upload.errNoValues": "We could not read any values out of that file. Fill the form in yourself - everything below is editable.",
-
   "doc.open": "Open a share",
   "doc.openHint": "paste link or code",
   "doc.openBtn": "Open records",
@@ -251,7 +238,6 @@
   "doc.goToApp": "Go to MediThread",
   "doc.sharedBy": "Shared by {name}",
   "doc.noteAdded": "Note added",
-
   "summary.title": "Clinician summary",
   "summary.printBtn": "Print / Save as PDF",
   "summary.lastResults": "Recent results",
@@ -260,7 +246,6 @@
   "summary.abnormalNone": "No out-of-range results flagged.",
   "summary.results": "Results",
   "summary.dateCol": "Date",
-
   "toast.linkCreated": "Link created",
   "toast.linkCopied": "Link copied",
   "toast.copyFailed": "Copy failed - select it and copy it manually",
@@ -271,15 +256,17 @@
   "toast.saved": "Saved to your timeline",
   "toast.exported": "Chart exported",
   "toast.imported": "Chart imported",
-
   "err.titleRequired": "Add a title.",
   "err.selectOne": "Select at least one record.",
   "err.badJson": "That file is not a MediThread chart.",
   "err.importFailed": "The import failed - {reason}",
-
   "cardonly.open": "Card only",
   "cardonly.close": "Back",
   "cardonly.hintTitle": "Printing on iPhone",
   "cardonly.iosHint": "iPhone does not open the print sheet from a web page. Use Safari’s Share button and choose Print, or just take a screenshot - this view is the whole card with nothing around it.",
-  "cardonly.hint": "Use your browser’s Print command to save this card as a PDF."
+  "cardonly.hint": "Use your browser’s Print command to save this card as a PDF.",
+  "upload.loadSample": "Load a sample lab report",
+  "upload.sampleHint": "A bundled PDF with a text layer - reads instantly, no OCR download needed. Use this when the venue WiFi is slow.",
+  "upload.sampleLoaded": "Sample report loaded",
+  "upload.sampleFailed": "The sample report could not be loaded."
 }

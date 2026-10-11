@@ -5,14 +5,12 @@
   "app.patientId": "{name}, {age}",
   "app.language": "भाषा",
   "app.colophon": "MediThread - IIITDM HealthTech, \"Lost in Transit\". केवल नमूना डेटा। दवा-अनुक्रिया और डुप्लिकेट-टेस्ट नियम केवल उदाहरण हैं, चिकित्सा सलाह नहीं।",
-
   "nav.patient": "मरीज़",
   "nav.patientHint": "चार्ट",
   "nav.doctor": "डॉक्टर",
   "nav.doctorHint": "सहमति से",
   "nav.emergency": "आपातकाल",
   "nav.emergencyHint": "PIN से",
-
   "common.close": "बंद करें",
   "common.print": "प्रिंट",
   "common.search": "खोजें",
@@ -21,7 +19,6 @@
   "common.readOnly": "केवल पढ़ने के लिए",
   "common.pasteLink": "लिंक यहाँ चिपकाएँ",
   "common.savePDF": "प्रिंट / PDF सहेजें",
-
   "chart.kicker": "मरीज़ का चार्ट",
   "chart.records": "रिकॉर्ड",
   "chart.recordsSub": "{n} प्रदाता, एक चार्ट",
@@ -31,20 +28,17 @@
   "chart.sharesSub": "समाप्त होने वाली, रद्द करने योग्य, दर्ज",
   "chart.age": "{age} वर्ष, {sex}",
   "chart.blood": "रक्त {group}",
-
   "tab.timeline": "समयरेखा",
   "tab.meds": "दवाएँ",
   "tab.share": "साझा करना",
   "tab.emergency": "आपातकाल कार्ड",
   "tab.upload": "रिकॉर्ड जोड़ें",
-
   "type.prescription": "नुस्फ़ा",
   "type.lab": "लैब जाँच",
   "type.scan": "स्कैन",
   "type.discharge": "डिस्चार्ज",
   "type.note": "नोट",
   "type.digital": "डिजिटल",
-
   "timeline.title": "यही धागा",
   "timeline.count": "{total} में से {shown} रिकॉर्ड",
   "timeline.searchLabel": "चार्ट में खोजें",
@@ -60,14 +54,12 @@
   "timeline.docOmitted": "मूल फ़ाइल शामिल नहीं की गई - इसके बजाय निकाले गए मान साझा किए गए हैं।",
   "timeline.flag": "चेतावनी",
   "timeline.medsFound": "दवाएँ",
-
   "labs.title": "लैब रुझान",
   "labs.hint": "जाँच दोहराने की ज़रूरत नहीं",
   "labs.needTwo": "{test} का एक ही नतीजा मौजूद है। रुझान के लिए दो या अधिक चाहिए।",
   "labs.trend": "{n} नतीजे, {from} से {to}{unit}।",
   "labs.improving": "पहले नतीजे से लगातार सुधार - जाँच दोहराने के बजाय यही साझा करें।",
   "labs.neutral": "यह रुझान अगले डॉक्टर को साझा करें, जाँच दोहराने के बजाय।",
-
   "demo.title": "यह डेमो क्या दिखाता है",
   "demo.lost": "रास्ते में खो जाना",
   "demo.lostBody": "दस अलग-अलग प्रदाताओं की कागज़ी पर्चियाँ, PDF और तस्वीरें एक ही खोजे जा सकने वाले चार्ट में आ जाती हैं।",
@@ -78,7 +70,6 @@
   "demo.insecure": "असुरक्षित भेजना",
   "demo.insecureBody": "साझा करने की समय-सीमा खत्म होती है, रद्द किया जा सकता है, और हर बार देखना दर्ज होता है।",
   "demo.note": "IIITDM HealthTech ब्रीफ, \"Lost in Transit\" के लिए बनाया गया।",
-
   "meds.title": "चल रही दवाएँ",
   "meds.hint": "आपातकाल में यही सूची चाहिए",
   "meds.col1": "दवा",
@@ -100,7 +91,6 @@
   "meds.windows": "डुप्लिकेट जाँच की जाँच हर जाँच की अवधि से होती है - HbA1c 90 दिन, creatinine 60, LDL 120। यदि डॉक्टर तीन हफ़्ते बाद दोबारा HbA1c बताता है, तो उसे पुराना नतीजा देखने का संकेत मिलता है।",
   "meds.scope": "सीमा",
   "meds.scopeBody": "यहाँ का नियम-समूह केवल उदाहरण है। असली परिनियोजन में अनुमोदित दवा डेटाबेस और नैदानिक निर्णय समर्थन नियम इस्तेमाल होते।",
-
   "share.title": "साझा करने का लिंक बनाएँ",
   "share.hint": "किसी भी डिवाइस पर खुलेगा",
   "share.who": "किसके लिए",
@@ -136,7 +126,6 @@
   "share.expiry1": "1 घंटा - आपातकाल या ER विज़िट",
   "share.expiry24": "24 घंटे - एक OPD परामर्श",
   "share.expiry168": "7 दिन - दूसरी राय",
-
   "er.title": "आपातकाल कार्ड",
   "er.critical": "महत्वपूर्ण जानकारी",
   "er.forResponders": "प्राथमिक उपचार करने वालों के लिए",
@@ -164,7 +153,6 @@
   "er.printCard": "यह कार्ड प्रिंट करें",
   "er.bilingual": "अंग्रेज़ी में भी दिखाएँ",
   "er.urlLabel": "पता",
-
   "upload.title": "रिकॉर्ड जोड़ें",
   "upload.hint": "PDF या फ़ोटो",
   "upload.drop": "फ़ाइल यहाँ छोड़ें, या चुनें",
@@ -216,7 +204,6 @@
   "upload.errNetwork": "पाठ पहचानने के लिए एक बार भाषा डेटा डाउनलोड होता है, और वह नेटवर्क से नहीं मिल पाया। फ़ॉर्म भरकर आगे बढ़ें।",
   "upload.errUnreadable": "यह फ़ाइल पढ़ी नहीं जा सकी। फ़ॉर्म भरकर आगे बढ़ें।",
   "upload.errNoValues": "इस फ़ाइल से कोई मान नहीं निकला। फ़ॉर्म खुद भरें - नीचे सब कुछ बदला जा सकता है।",
-
   "doc.open": "साझा खोलें",
   "doc.openHint": "लिंक या कोड चिपकाएँ",
   "doc.openBtn": "रिकॉर्ड खोलें",
@@ -251,7 +238,6 @@
   "doc.goToApp": "MediThread पर जाएँ",
   "doc.sharedBy": "{name} द्वारा साझा",
   "doc.noteAdded": "नोट जोड़ा गया",
-
   "summary.title": "चिकित्सक सारांश",
   "summary.printBtn": "प्रिंट / PDF सहेजें",
   "summary.lastResults": "हाल के नतीजे",
@@ -260,7 +246,6 @@
   "summary.abnormalNone": "कोई असामान्य नतीजा चिन्हित नहीं।",
   "summary.results": "नतीजे",
   "summary.dateCol": "तारीख़",
-
   "toast.linkCreated": "लिंक बन गया",
   "toast.linkCopied": "लिंक कॉपी हो गया",
   "toast.copyFailed": "कॉपी नहीं हो पाया - इसे चुनकर स्वयं कॉपी करें",
@@ -271,15 +256,17 @@
   "toast.saved": "आपकी समयरेखा में सहेजा गया",
   "toast.exported": "चार्ट निर्यात किया गया",
   "toast.imported": "चार्ट आयात किया गया",
-
   "err.titleRequired": "शीर्षक दर्ज करें।",
   "err.selectOne": "कम से कम एक रिकॉर्ड चुनें।",
   "err.badJson": "यह फ़ाइल MediThread चार्ट नहीं है।",
   "err.importFailed": "आयात असफल रहा - {reason}",
-
   "cardonly.open": "केवल कार्ड",
   "cardonly.close": "वापस",
   "cardonly.hintTitle": "iPhone पर प्रिंट करना",
   "cardonly.iosHint": "iPhone वेब पेज से प्रिंट विंडो नहीं खोलता। Safari का Share बटन चुनकर Print चुनें, या इस दृश्य का स्क्रीनशॉट ले लें - यह केवल कार्ड है, आस-पास कुछ नहीं।",
-  "cardonly.hint": "इस कार्ड को PDF के रूप में सहेजने के लिए ब्राउज़र का Print कमांड इस्तेमाल करें।"
+  "cardonly.hint": "इस कार्ड को PDF के रूप में सहेजने के लिए ब्राउज़र का Print कमांड इस्तेमाल करें।",
+  "upload.loadSample": "नमूना लैब रिपोर्ट लोड करें",
+  "upload.sampleHint": "बंडल की गई PDF जिसमें टेक्स्ट लेयर है - तुरंत पढ़ी जाती है, OCR डाउनलोड की ज़रूरत नहीं। वेन्यू का WiFi धीमा हो तो इसका उपयोग करें।",
+  "upload.sampleLoaded": "नमूना रिपोर्ट लोड हो गई",
+  "upload.sampleFailed": "नमूना रिपोर्ट लोड नहीं हो सकी।"
 }

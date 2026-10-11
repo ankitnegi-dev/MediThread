@@ -966,7 +966,11 @@ code.inline {
   opacity: 0;
   cursor: pointer;
   font-size: 0;
+  z-index: 1;
 }
+/* controls inside the dropzone must sit above that input, or it eats their clicks */
+.dropzone .btn-row,
+.dropzone .fineprint { position: relative; z-index: 2; }
 .dropzone-input:focus-visible { outline: 2px solid var(--thread); outline-offset: 3px; }
 
 .dropzone-title { font: 600 15px/1.3 var(--sans); color: var(--ink); }

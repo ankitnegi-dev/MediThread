@@ -235,6 +235,22 @@ function UploadTab({ state, update }) {
     if (f) acceptFile(f)
   }
 
+  // Demo mode: the bundled sample has a text layer, so it reads in
+  // milliseconds and never depends on the OCR packs downloading live.
+  const loadSample = async () => {
+    setError('')
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}sample-lab-report.pdf`)
+      if (!res.ok) throw new Error(String(res.status))
+      const blob = await res.blob()
+      const f = new File([blob], 'sample-lab-report.pdf', { type: 'application/pdf' })
+      await acceptFile(f)
+      flash(t('upload.sampleLoaded'))
+    } catch {
+      setError(t('upload.sampleFailed'))
+    }
+  }
+
   const checkDuplicates = (labs, date) => {
     const hits = []
     for (const test of Object.keys(labs || {})) {
@@ -346,6 +362,10 @@ function UploadTab({ state, update }) {
               />
               <p className="dropzone-title">{t('upload.drop')}</p>
               <p className="fineprint" style={{ marginTop: 6 }}>{t('upload.dropBody')}</p>
+              <div className="btn-row" style={{ justifyContent: 'center', marginTop: 14 }}>
+                <button className="btn quiet small" onClick={loadSample}>{t('upload.loadSample')}</button>
+              </div>
+              <p className="fineprint" style={{ marginTop: 8 }}>{t('upload.sampleHint')}</p>
             </div>
           ) : (
             <div className="filepick">
