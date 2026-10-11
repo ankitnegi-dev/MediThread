@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "MediThread — patient-owned unified health timeline. IIITDM Hackathon HealthTech: Lost in Transit.",
+  "description": "MediThread - patient-owned unified health timeline. IIITDM Hackathon HealthTech: Lost in Transit.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

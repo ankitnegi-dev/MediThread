@@ -1,4 +1,4 @@
-// Seeded demo data: Meera Krishnan, 52 — diabetes + hypertension + hypothyroid.
+// Seeded demo data: Meera Krishnan, 52 - diabetes + hypertension + hypothyroid.
 // Records are intentionally scattered across providers to demo unification.
 export const DEMO_PATIENT = {
   id: 'pat-meera-01',
@@ -25,7 +25,7 @@ export const SEED_RECORDS = [
     id: 'rec-001',
     type: 'prescription',
     date: '2022-11-03',
-    provider: 'Apollo Clinic, Chennai — Dr. R. Nair',
+    provider: 'Apollo Clinic, Chennai - Dr. R. Nair',
     title: 'Hypertension diagnosis + Telmisartan start',
     conditions: ['Hypertension'],
     meds: [{ name: 'Telmisartan', dose: '40mg OD' }],
@@ -37,7 +37,7 @@ export const SEED_RECORDS = [
     type: 'lab',
     date: '2023-04-12',
     provider: 'Dr Lal PathLabs, Chennai',
-    title: 'HbA1c 8.1% — Diabetes confirmed',
+    title: 'HbA1c 8.1% - Diabetes confirmed',
     conditions: ['Type 2 Diabetes'],
     labs: { HbA1c: 8.1, FastingGlucose: 168, Creatinine: 0.9 },
     notes: 'New diabetes. Started Metformin 500mg BD. Diet chart given.',
@@ -47,11 +47,11 @@ export const SEED_RECORDS = [
     id: 'rec-003',
     type: 'prescription',
     date: '2023-08-19',
-    provider: 'CityCare Clinic, Chennai — Dr. S. Rao',
-    title: 'Fever + body ache — conflicting NSAID',
+    provider: 'CityCare Clinic, Chennai - Dr. S. Rao',
+    title: 'Fever + body ache - conflicting NSAID',
     conditions: ['Fever'],
     meds: [{ name: 'Ibuprofen', dose: '400mg TDS' }],
-    notes: 'Patient did not disclose Telmisartan + diabetes history. NSAID without BP check — classic recall failure.',
+    notes: 'Patient did not disclose Telmisartan + diabetes history. NSAID without BP check - classic recall failure.',
     source: 'Paper slip',
     flag: 'Potential interaction: NSAID + Telmisartan → BP/kidney risk'
   },
@@ -60,7 +60,7 @@ export const SEED_RECORDS = [
     type: 'lab',
     date: '2024-01-15',
     provider: 'Apollo Labs, Chennai',
-    title: 'Lipid profile — LDL 142, started statin',
+    title: 'Lipid profile - LDL 142, started statin',
     conditions: ['Type 2 Diabetes', 'Hypertension'],
     labs: { LDL: 142, HDL: 44, HbA1c: 7.6, Creatinine: 1.0 },
     notes: 'LDL high. Atorvastatin 10mg OD. Repeat HbA1c in 3 months.',
@@ -71,7 +71,7 @@ export const SEED_RECORDS = [
     type: 'scan',
     date: '2024-06-02',
     provider: 'MIOT Imaging, Chennai',
-    title: 'USG Abdomen — fatty liver Grade I',
+    title: 'USG Abdomen - fatty liver Grade I',
     conditions: ['Type 2 Diabetes'],
     notes: 'Mild hepatomegaly, fatty infiltration. No focal lesion. Advise weight loss.',
     source: 'Scan + PDF'
@@ -81,10 +81,10 @@ export const SEED_RECORDS = [
     type: 'lab',
     date: '2024-09-10',
     provider: 'Orange Health, Bengaluru (after move)',
-    title: 'HbA1c 7.2% — improving',
+    title: 'HbA1c 7.2% - improving',
     conditions: ['Type 2 Diabetes'],
     labs: { HbA1c: 7.2, FastingGlucose: 138, Creatinine: 1.0 },
-    notes: 'New city, new lab. Doctor had no old reports — patient forwarded PDFs over WhatsApp.',
+    notes: 'New city, new lab. Doctor had no old reports - patient forwarded PDFs over WhatsApp.',
     source: 'WhatsApp PDF forward'
   },
   {
@@ -92,7 +92,7 @@ export const SEED_RECORDS = [
     type: 'discharge',
     date: '2025-02-22',
     provider: 'St. John’s ER, Bengaluru',
-    title: 'ER: dizziness — BP dip, dehydration',
+    title: 'ER: dizziness - BP dip, dehydration',
     conditions: ['Hypertension'],
     notes: 'Patient unable to recall meds in ER. Attender showed phone photos. Withheld morning Telmisartan, IV fluids. No admission.',
     source: 'Discharge summary',
@@ -106,15 +106,15 @@ export const SEED_RECORDS = [
     title: 'HbA1c 7.0%, Creatinine 1.1',
     conditions: ['Type 2 Diabetes'],
     labs: { HbA1c: 7.0, FastingGlucose: 131, Creatinine: 1.1 },
-    notes: 'Stable. eGFR borderline — avoid nephrotoxins. Repeat KFT in 3 months, not next week.',
+    notes: 'Stable. eGFR borderline - avoid nephrotoxins. Repeat KFT in 3 months, not next week.',
     source: 'PDF report'
   },
   {
     id: 'rec-009',
     type: 'prescription',
     date: '2026-03-14',
-    provider: 'Fortis OPD, Bengaluru — Dr. P. Iyer',
-    title: 'Thyroid review — dose steady',
+    provider: 'Fortis OPD, Bengaluru - Dr. P. Iyer',
+    title: 'Thyroid review - dose steady',
     conditions: ['Hypothyroidism'],
     meds: [{ name: 'Levothyroxine', dose: '75mcg OD' }],
     labs: { TSH: 3.1 },
@@ -129,7 +129,7 @@ export const SEED_RECORDS = [
     title: 'Latest: HbA1c 6.8%, LDL 98',
     conditions: ['Type 2 Diabetes', 'Hypertension'],
     labs: { HbA1c: 6.8, FastingGlucose: 124, LDL: 98, HDL: 48, Creatinine: 1.0 },
-    notes: 'Best control yet. Continue all meds. Next HbA1c due Jan 2027 — do NOT repeat earlier.',
+    notes: 'Best control yet. Continue all meds. Next HbA1c due Jan 2027 - do NOT repeat earlier.',
     source: 'PDF report'
   }
 ]

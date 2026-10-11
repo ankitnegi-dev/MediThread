@@ -2,7 +2,7 @@
 //
 // v2 token = lz-string(deflate) over JSON, carrying the patient summary and the
 // actual record payloads. That means a link opened on a phone with no local
-// storage still renders the shared records — no server registry required.
+// storage still renders the shared records - no server registry required.
 //
 // Revocation is the honest limitation: with no backend there is no central
 // list to consult, so a revocation only takes effect in the browser that
@@ -64,7 +64,7 @@ export function decodeShareToken(token) {
   }
   const t = token.trim()
 
-  // v1 links were registry-dependent base64url JSON — they cannot work off-device.
+  // v1 links were registry-dependent base64url JSON - they cannot work off-device.
   if (/^[A-Za-z0-9_-]{20,}$/.test(t) && !/[+@$!%]/.test(t)) {
     try {
       const legacy = JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g, '+').replace(/_/g, '/')))))
@@ -107,7 +107,7 @@ export function decodeShareToken(token) {
 /**
  * Validate a token for display.
  *
- * `state` is optional — omit it (or pass an empty store) when opening a link on
+ * `state` is optional - omit it (or pass an empty store) when opening a link on
  * a device that never issued it. In that case revocation cannot be checked, and
  * `external` is true so the UI can say so.
  */
@@ -155,13 +155,13 @@ export function validateShareToken(token, state) {
     records: payload.records,
     patient: payload.patient,
     payload,
-    // true when this browser has no registry entry — revocation is unknowable here
+    // true when this browser has no registry entry - revocation is unknowable here
     external: !local
   }
 }
 
 /* ------------------------------------------------------------------
-   Note codes — the honest way a doctor gives something back.
+   Note codes - the honest way a doctor gives something back.
    There is no server, so the doctor cannot write to the patient's
    timeline. They hand the patient a code instead.
    ------------------------------------------------------------------ */
@@ -203,8 +203,8 @@ export function decodeNoteCode(code) {
 
 export function expiryOptions() {
   return [
-    { label: '1 hour — emergency or ER visit', hours: 1 },
-    { label: '24 hours — one OPD consultation', hours: 24 },
-    { label: '7 days — second opinion', hours: 168 }
+    { label: '1 hour - emergency or ER visit', hours: 1 },
+    { label: '24 hours - one OPD consultation', hours: 24 },
+    { label: '7 days - second opinion', hours: 168 }
   ]
 }

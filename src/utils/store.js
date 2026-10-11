@@ -1,4 +1,4 @@
-// Tiny localStorage store — no backend needed, judges can use instantly.
+// Tiny localStorage store - no backend needed, judges can use instantly.
 import { DEMO_PATIENT, SEED_RECORDS } from '../data/seed.js'
 
 const KEY = 'medithread:v1'
@@ -11,7 +11,7 @@ function freshState() {
       {
         id: 'share-demo-01',
         tokenPayload: null, // filled on load
-        label: 'Dr. P. Iyer — thyroid review',
+        label: 'Dr. P. Iyer - thyroid review',
         recordIds: ['rec-009', 'rec-010', 'rec-008'],
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 43).toISOString(),

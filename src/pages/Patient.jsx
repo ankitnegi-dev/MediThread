@@ -104,7 +104,7 @@ export default function Patient({ state, setState }) {
                     <button className="btn quiet small" onClick={() => setSelected(null)}>{t('common.close')}</button>
                   </div>
                   <div className="panel-pad">
-                    <p className="mono-hint">{selected.date} — {selected.provider}</p>
+                    <p className="mono-hint">{selected.date} - {selected.provider}</p>
                     <p className="notes" style={{ marginTop: 12 }}>{selected.notes}</p>
                   </div>
                 </section>
@@ -422,7 +422,7 @@ function UploadTab({ state, update }) {
 
           <div className="field">
             <label htmlFor="f-title">{t('upload.titleF')}</label>
-            <input id="f-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="HbA1c 6.9% — routine" />
+            <input id="f-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="HbA1c 6.9% - routine" />
           </div>
 
           {draft && Object.keys(draft.labs).length > 0 && (
@@ -431,7 +431,7 @@ function UploadTab({ state, update }) {
               <div className="labs">
                 {Object.entries(draft.labs).map(([k, v]) => (
                   <div className="labs-row" key={k}>
-                    <span className="k">{k || '—'}</span>
+                    <span className="k">{k || '-'}</span>
                     <input
                       className="labs-edit"
                       value={String(v)}
@@ -541,7 +541,7 @@ function MedsTab({ state, update }) {
       ...state,
       patient: {
         ...state.patient,
-        currentMeds: [...state.patient.currentMeds, { name: name.trim(), dose: dose || '—', freq: 'as advised', since: new Date().toISOString().slice(0, 10) }]
+        currentMeds: [...state.patient.currentMeds, { name: name.trim(), dose: dose || '-', freq: 'as advised', since: new Date().toISOString().slice(0, 10) }]
       }
     }
     addAudit(next, `Medication added: ${name} ${dose}${hits.length ? ` (${hits.length} interaction flag)` : ''}`)
@@ -736,7 +736,7 @@ function ShareTab({ state, update }) {
                 {[...state.records].sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => (
                   <label key={r.id} className="checkline">
                     <input type="checkbox" checked={ids.includes(r.id)} onChange={() => toggle(r.id)} />
-                    <span><b>{r.date}</b> — {r.title}</span>
+                    <span><b>{r.date}</b> - {r.title}</span>
                   </label>
                 ))}
               </div>

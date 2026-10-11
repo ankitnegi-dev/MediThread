@@ -25,7 +25,7 @@ export function validateFile(file) {
   if (file.size === 0) return { ok: false, error: 'That file is empty.' }
   if (file.size > MAX_BYTES) {
     const mb = (file.size / (1024 * 1024)).toFixed(1)
-    return { ok: false, error: `That file is ${mb} MB. The limit is 10 MB — try a photo instead of a scan.` }
+    return { ok: false, error: `That file is ${mb} MB. The limit is 10 MB - try a photo instead of a scan.` }
   }
   return { ok: true }
 }
@@ -85,7 +85,7 @@ async function pdfText(file, onProgress) {
     onProgress?.('reading pdf', i / doc.numPages)
     const page = await doc.getPage(i)
     const content = await page.getTextContent()
-    // keep line structure — hasEOL marks the end of a printed line
+    // keep line structure - hasEOL marks the end of a printed line
     let line = ''
     for (const item of content.items) {
       line += item.str
@@ -114,7 +114,7 @@ async function pdfPageToImage(file, pageNo, scale = 2) {
   return canvas
 }
 
-/** First page as a data URL — used for the preview thumbnail. */
+/** First page as a data URL - used for the preview thumbnail. */
 export async function pdfPreview(file) {
   try {
     const canvas = await pdfPageToImage(file, 1, 1.4)
@@ -142,7 +142,7 @@ export async function extractText(file, onProgress) {
       if (usable) {
         return { text: out.text, method: 'pdf-text', pages: out.pages, confidence: null }
       }
-      onProgress?.('scanned pdf — running ocr', 0.05)
+      onProgress?.('scanned pdf - running ocr', 0.05)
       const canvas = await pdfPageToImage(file, 1, 2)
       const ocr = await ocrImage(canvas, onProgress)
       return { text: ocr.text, method: 'ocr', pages: out?.pages ?? 1, confidence: ocr.confidence }
@@ -261,7 +261,7 @@ export function detectProvider(text) {
   for (const l of lines.slice(0, 25)) {
     if (l.length < 90 && re.test(l)) return l
   }
-  // The whole page came back as one line — cut a window around the first
+  // The whole page came back as one line - cut a window around the first
   // institutional keyword instead of giving up.
   const flat = lines.join(' ')
   const m = flat.match(new RegExp(`[^|\\n]{0,40}${re.source}[^|\\n]{0,45}`, 'i'))
@@ -291,7 +291,7 @@ export function parseLabs(text) {
   for (const test of LAB_TESTS) {
     const m = t.match(test.re)
     if (!m) continue
-    // start after the label itself — labels like "HbA1c" contain their own digits
+    // start after the label itself - labels like "HbA1c" contain their own digits
     const after = m.index + m[0].length
     const window = t.slice(after, after + 140)
     const val = window.match(NUMBER_AFTER)
@@ -319,7 +319,7 @@ export function parseMedicines(text) {
       const freq = FREQ.find((f) => f.re.test(line))
       found.push({
         name: drug,
-        dose: doseMatch ? `${doseMatch[1]}${doseMatch[2].toLowerCase()}` : '—',
+        dose: doseMatch ? `${doseMatch[1]}${doseMatch[2].toLowerCase()}` : '-',
         freq: freq ? freq.label : 'as advised'
       })
     }

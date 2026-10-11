@@ -40,7 +40,7 @@ const records = [
 
 const hoursFromNow = (h) => ({
   id: 'share-1',
-  label: 'Dr. Iyer — review',
+  label: 'Dr. Iyer - review',
   purpose: 'review',
   createdAt: new Date().toISOString(),
   expiresAt: new Date(Date.now() + h * 3600 * 1000).toISOString()
@@ -158,7 +158,7 @@ describe('revocation (local only)', () => {
     expect(v.reason).toBe('revoked')
   })
 
-  it('cannot detect revocation without the issuing store — that is the documented limit', () => {
+  it('cannot detect revocation without the issuing store - that is the documented limit', () => {
     const token = makeShareToken({ share: hoursFromNow(24), patient, records })
     const v = validateShareToken(token, { shares: [] })
     expect(v.ok).toBe(true)
@@ -176,11 +176,11 @@ describe('note codes', () => {
   }
 
   it('round-trips a note code', () => {
-    const code = makeNoteCode(note, 'Fortis OPD — Dr. P. Iyer')
+    const code = makeNoteCode(note, 'Fortis OPD - Dr. P. Iyer')
     const d = decodeNoteCode(code)
     expect(d.ok).toBe(true)
     expect(d.record.title).toBe('Paracetamol 650mg SOS')
-    expect(d.record.provider).toBe('Fortis OPD — Dr. P. Iyer')
+    expect(d.record.provider).toBe('Fortis OPD - Dr. P. Iyer')
   })
 
   it('is marked with the mtn1 prefix so it is recognisable', () => {

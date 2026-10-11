@@ -1,4 +1,4 @@
-// Attachments live in IndexedDB — localStorage caps out around 5 MB and is
+// Attachments live in IndexedDB - localStorage caps out around 5 MB and is
 // synchronous, which would freeze the UI. Records keep only a fileId pointer.
 
 const DB_NAME = 'medithread-files'

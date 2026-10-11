@@ -67,7 +67,7 @@ describe('translate', () => {
 
 describe('clinical content stays in Latin script', () => {
   it('keeps drug names untranslated in the emergency card copy', () => {
-    // the dictionaries must not translate medicine names — only the labels around them
+    // the dictionaries must not translate medicine names - only the labels around them
     for (const code of ['hi', 'ta', 'kn']) {
       expect(DICTIONARIES[code]['er.meds']).not.toMatch(/Metformin|Telmisartan/)
     }

@@ -76,7 +76,7 @@ describe('parseMedicines', () => {
   })
 
   it('leaves dose as a dash when the line has none', () => {
-    expect(parseMedicines('Paracetamol')[0].dose).toBe('—')
+    expect(parseMedicines('Paracetamol')[0].dose).toBe('-')
   })
 })
 
@@ -124,7 +124,7 @@ describe('parseDocument', () => {
     expect(d.labs.HbA1c).toBe('6.8 %')
   })
 
-  it('never invents a date — defaults to today instead', () => {
+  it('never invents a date - defaults to today instead', () => {
     const d = parseDocument('HbA1c 6.8 %', 'x.pdf')
     expect(d.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })

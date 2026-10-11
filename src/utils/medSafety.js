@@ -1,5 +1,5 @@
 // Clinical guardrails: drug interactions + duplicate-test detection.
-// Curated, explainable rules — ideal for hackathon demo (not medical advice).
+// Curated, explainable rules - ideal for hackathon demo (not medical advice).
 import { labNumber } from './extract.js'
 
 const INTERACTIONS = [

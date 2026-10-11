@@ -1,5 +1,5 @@
 /* ============================================================
-   MediThread — "The Chart"
+   MediThread - "The Chart"
    The interface is a patient file: a sheet on a desk, ruled
    entries, one continuous stitched spine running through it.
    ============================================================ */
@@ -14,7 +14,7 @@
   --ink:      #151A17;
   --ink-80:   #2F3833;
   --ink-60:   #4F5852;
-  --ink-40:   #676F6A;   /* 5.0:1 on sheet, 4.6:1 on sheet-2 — WCAG AA for small text */
+  --ink-40:   #676F6A;   /* 5.0:1 on sheet, 4.6:1 on sheet-2 - WCAG AA for small text */
 
   --rule:     #D6D9CF;
   --rule-2:   #E6E8DF;
@@ -48,7 +48,7 @@ body {
 h1, h2, h3, h4, h5, p, dl, dd, figure { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 
-/* Devanagari, Tamil and Kannada need more vertical room than Latin —
+/* Devanagari, Tamil and Kannada need more vertical room than Latin -
    without this the matras and vowel signs get clipped. */
 html[lang='hi'] body,
 html[lang='ta'] body,
@@ -72,7 +72,7 @@ a:hover { color: var(--thread-d); }
 }
 
 /* ------------------------------------------------------------
-   Binder — the sticky top of the folder
+   Binder - the sticky top of the folder
    ------------------------------------------------------------ */
 
 .binder {
@@ -163,9 +163,9 @@ a:hover { color: var(--thread-d); }
   white-space: nowrap;
 }
 
-/* removed — the patient chip is now plain text, see .binder-id */
+/* removed - the patient chip is now plain text, see .binder-id */
 
-/* Index tabs — dividers in a folder. The open one merges
+/* Index tabs - dividers in a folder. The open one merges
    into the sheet below it. */
 
 .tabs {
@@ -225,7 +225,7 @@ a:hover { color: var(--thread-d); }
 }
 
 /* ------------------------------------------------------------
-   Chart header — the block at the top of a real patient file
+   Chart header - the block at the top of a real patient file
    ------------------------------------------------------------ */
 
 .chart-head {
@@ -347,7 +347,7 @@ a:hover { color: var(--thread-d); }
 .deflist dd { font-size: 13px; line-height: 1.55; color: var(--ink-80); margin-top: 4px; }
 
 /* ------------------------------------------------------------
-   Timeline — the stitched spine
+   Timeline - the stitched spine
    ------------------------------------------------------------ */
 
 .spine {
@@ -388,7 +388,7 @@ a:hover { color: var(--thread-d); }
   padding-bottom: 26px;
   border-bottom: 1px solid var(--rule-2);
 }
-/* the stitch — a short rule crossing the spine at each entry */
+/* the stitch - a short rule crossing the spine at each entry */
 .entry-body::before {
   content: '';
   position: absolute;
@@ -485,7 +485,7 @@ a:hover { color: var(--thread-d); }
 .meds b { font-weight: 600; }
 
 /* ------------------------------------------------------------
-   Filters — segmented, cut from the same stock
+   Filters - segmented, cut from the same stock
    ------------------------------------------------------------ */
 
 .filters {
@@ -610,7 +610,7 @@ input:focus, select:focus, textarea:focus {
 .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
 
 /* ------------------------------------------------------------
-   Notices — stamped onto the page, not floating cards
+   Notices - stamped onto the page, not floating cards
    ------------------------------------------------------------ */
 
 .notice {
@@ -656,7 +656,7 @@ input:focus, select:focus, textarea:focus {
 .st.killed { color: var(--stamp); }
 
 /* ------------------------------------------------------------
-   Tables — a ledger
+   Tables - a ledger
    ------------------------------------------------------------ */
 
 table { width: 100%; border-collapse: collapse; }
@@ -683,7 +683,7 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
 .scroll-x { overflow-x: auto; }
 
 /* ------------------------------------------------------------
-   Emergency card — printed, high contrast, meant to be read fast
+   Emergency card - printed, high contrast, meant to be read fast
    ------------------------------------------------------------ */
 
 .ercard {
@@ -761,7 +761,7 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
 .ercard-toggle { margin-top: 18px; }
 
 /* ------------------------------------------------------------
-   Card-only view — the phone fallback for printing
+   Card-only view - the phone fallback for printing
    ------------------------------------------------------------ */
 
 .cardonly {
@@ -807,7 +807,7 @@ body.cardonly-mode .sheet {
 }
 
 /* ------------------------------------------------------------
-   Clinician summary — the one page a clinician prints
+   Clinician summary - the one page a clinician prints
    ------------------------------------------------------------ */
 
 .summary {
@@ -916,7 +916,7 @@ code.inline {
 }
 
 /* ------------------------------------------------------------
-   Toast — confirms an action that happened off-screen
+   Toast - confirms an action that happened off-screen
    ------------------------------------------------------------ */
 
 .toast {
@@ -943,7 +943,7 @@ code.inline {
 }
 
 /* ------------------------------------------------------------
-   Upload — dropzone, file chip, OCR progress, value editing
+   Upload - dropzone, file chip, OCR progress, value editing
    ------------------------------------------------------------ */
 
 .dropzone {
@@ -1048,7 +1048,7 @@ code.inline {
 }
 
 /* ------------------------------------------------------------
-   Motion — only where it explains a change
+   Motion - only where it explains a change
    ------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {

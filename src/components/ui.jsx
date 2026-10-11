@@ -143,7 +143,7 @@ export function TimelineItem({ r, onView }) {
   )
 }
 
-/* Lab trend plotted on graph paper — the chart you would actually
+/* Lab trend plotted on graph paper - the chart you would actually
    find in the file, with the target line drawn in. */
 export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) {
   const t = useT()

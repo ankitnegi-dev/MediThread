@@ -1,7 +1,7 @@
 /**
  * Printing behaves differently on phones.
  *
- * Android Chrome honours window.print(). iPhone/iPad Safari does not — the
+ * Android Chrome honours window.print(). iPhone/iPad Safari does not - the
  * call resolves to nothing and the user just sees a button that does nothing.
  * There is no way to open the iOS print sheet from JavaScript, so there we
  * offer a card-only view the user can screenshot or print from the browser

@@ -41,7 +41,7 @@ export function Doctor({ state, setState }) {
       id: `rec-${Math.random().toString(36).slice(2, 8)}`,
       type: newNote.type,
       date: new Date().toISOString().slice(0, 10),
-      provider: 'Fortis OPD, Bengaluru — Dr. P. Iyer',
+      provider: 'Fortis OPD, Bengaluru - Dr. P. Iyer',
       title: newNote.title,
       conditions: [],
       notes: newNote.notes,
@@ -105,7 +105,7 @@ export function Doctor({ state, setState }) {
           <div style={{ marginTop: 30 }}>
             <div className={`notice ${result.external ? 'flag' : 'ok'}`} style={{ marginBottom: 26 }}>
               <span className="lead">{result.external ? t('doc.external') : t('doc.verified')}</span>
-              <b>{result.share.label}</b> —{' '}
+              <b>{result.share.label}</b> -{' '}
               {result.external
                 ? t('doc.externalBody')
                 : t('doc.verifiedBody', { n: result.records.length, when: new Date(result.share.expiresAt).toLocaleString() })}

@@ -35,7 +35,7 @@ function Shell() {
       <header className="binder">
         <div className="binder-inner">
           <div className="binder-bar">
-            <button className="mark" onClick={() => nav('/')} aria-label="MediThread — home">
+            <button className="mark" onClick={() => nav('/')} aria-label="MediThread - home">
               <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M4.5 4.5 12 12l7.5 7.5" />
                 <path d="M19.5 4.5 12 12l-7.5 7.5" />
