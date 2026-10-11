@@ -36,7 +36,8 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 3. **💊 Meds & Safety** — try adding `Ibuprofen` → HIGH-RISK Telmisartan interaction blocks with explanation + safer alternative. Try `Paracetamol` → green ✅.
 4. **🔗 Share** — select 3 records → 24h link → copy `…#/shared/<token>` → **open the link on your phone over mobile data** (or a second browser with no MediThread data): the records still render, because they travel inside the link. Revoke → the UI states plainly that revocation is enforced locally in this demo. The access log records every open.
 5. **🩺 Doctor** (`#/doctor`) — paste the share code → sees *only* the shared records, plus the patient's summary carried in the link → builds a **note code** → sends it to the patient, who pastes it into their timeline (continuity, not scratch).
-6. **🚨 Emergency** (`#/emergency`, PIN `2481`) — allergies + meds + blood group + last 5 records, QR printable for wallet/phone. Export JSON / print summary.
+6. **🚨 Emergency** (`#/emergency`, PIN `2481`) — allergies + meds + blood group + last 5 records, QR printable for wallet/phone. One medicine per line, allergies marked in red, and a bilingual English/हिन्दी/தமிழ்/ಕನ್ನಡ toggle. Export **and** import JSON; print a one-page clinician summary.
+7. **🗣️ Language** — switch to हिन्दी / தமிழ் / ಕನ್ನಡ in the header. The whole interface and the emergency card follow; the choice survives a reload.
 
 ## 3. Tech & architecture
 
@@ -47,7 +48,10 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 - **Share tokens (cross-device):** v2 token is `lz-string(deflate)` over JSON carrying the patient summary **and the selected record payloads**, so a link opens on any device with an empty localStorage. Validated for expiry, malformed input and local revocation. The emergency PIN is deliberately never embedded in a link.
 - **Revocation — honest limit:** there is no server, so there is no central consent registry. Revoking blocks the link **in the browser that issued it**; until the link expires on its own, it will still open elsewhere. Production uses a server-side consent registry.
 - **Doctor → patient continuity:** with no backend a doctor cannot write into the patient's chart. The Doctor view produces an `mtn1:` **note code**; the patient pastes it under *Sharing → Receive a note* and it joins the timeline.
-- **Clinical rules:** `src/utils/medSafety.js` — curated interaction pairs + per-test repeat windows. Illustrative, not medical advice; production would plug DrugBank / CDS Hooks + FHIR.
+- **Clinical rules:** `src/utils/medSafety.js` — curated interaction pairs + per-test repeat windows, with a drug-name alias table so “iodinated contrast” and “calcium carbonate” hit the right rule. Illustrative, not medical advice; production would plug DrugBank / CDS Hooks + FHIR.
+- **Languages:** English, हिन्दी, தமிழ், ಕನ್ನಡ. JSON dictionaries in `src/i18n/` behind a small `useT()` hook — no i18n framework. The choice persists and sets `<html lang>`. Drug names, lab test names, units and numbers stay in English so a prescription is never ambiguous; only the labels around them are translated. The emergency card has a bilingual toggle so a responder who reads only one of the two still gets the allergies.
+- **Accessibility:** all small text meets WCAG AA contrast (measured 4.67:1+), 44px tap targets on mobile, real `tablist` semantics, visible focus rings, and a keyboard-operable file drop (the input covers the dropzone, so it is focusable and Enter/Space opens the picker).
+- **Tests:** `npm test` — 86 Vitest cases covering share-token encode/decode/expiry/malformed/revoked, the document parser, the interaction rules and duplicate-test windows, and a completeness check that all four dictionaries match the English key set.
 - **Charts:** hand-rolled SVG (zero chart deps) — deliberate for offline reliability.
 
 ```
@@ -62,6 +66,9 @@ src/
   utils/extract.js        file validation, OCR/PDF text, rule-based parser
   utils/medSafety.js      interactions + duplicate-test windows
   utils/share.js          v2 self-contained token encode / validate + note codes
+  i18n/                   en / hi / ta / kn dictionaries + useT() hook
+  components/EmergencyCard.jsx     printed, bilingual ER card
+  components/ClinicianSummary.jsx  one-page printable clinician summary
 ```
 
 ## 4. Setup & run
