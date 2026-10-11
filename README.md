@@ -80,6 +80,73 @@ src/
 
 **Design:** the interface is a patient file - a sheet on a desk, folder index-tabs instead of a sidebar, and one continuous stitched spine carrying the timeline with dates in the margin. Source Serif 4 for records, IBM Plex Sans for the interface, IBM Plex Mono for measurements. No chart or UI kit.
 
+### How a document becomes a record
+
+```mermaid
+flowchart LR
+  A["User drops a file<br/>PDF · JPG · PNG · WEBP"] --> B["validateFile<br/>type + 10 MB limit"]
+  B -->|"rejected"| B1["Clear error,<br/>no state change"]
+  B -->|"accepted"| C{"Is it a PDF?"}
+  C -->|"yes"| D["pdfjs-dist<br/>read the text layer"]
+  D -->|"fewer than 40 chars<br/>(scanned page)"| E
+  C -->|"no - an image"| E["Render to canvas"]
+  E --> F["tesseract.js OCR<br/>eng + hin + tam"]
+  D -->|"readable"| G["parseDocument"]
+  F --> G
+  G --> G1["labs · medicines<br/>date · provider · type"]
+  G1 --> H["Review form<br/>pre-filled, fully editable"]
+  H --> I["On confirm:<br/>duplicate-test guard<br/>+ interaction checker"]
+  I --> J["putFile → IndexedDB"]
+  J --> K["Record saved to timeline<br/>fileId pointer kept, not the file"]
+```
+
+Nothing is auto-saved. OCR output is a draft, and the patient confirms or corrects it first.
+
+### Sharing across devices, with no server
+
+```mermaid
+sequenceDiagram
+  participant P as Patient<br/>(their browser)
+  participant D as Doctor<br/>(any device)
+  P->>P: Pick records, choose 1h / 24h / 7d
+  P->>P: makeShareToken = lz-string(deflate)<br/>of {sid, exp, patient, records}
+  Note over P,D: The link IS the transport.<br/>Nothing is hosted anywhere.
+  D->>D: Opens the link and decompresses
+  D->>D: validateShareToken<br/>expiry · malformed · legacy · local revocation
+  alt valid
+    D->>D: Records render from the token itself<br/>no fetch, no localStorage needed
+  else expired / damaged / revoked
+    D->>D: Explains exactly which one, and how to fix it
+  end
+  D->>D: Doctor writes a note
+  D->>P: makeNoteCode → mtn1:...
+  Note over P,D: No server means no push.<br/>The note travels back as a code.
+  P->>P: decodeNoteCode → the note joins the timeline
+```
+
+**Where the honest limits are:** a revoked link keeps working on any device that never issued it, until it expires on its own - there is no central consent registry to consult. The UI says this in the Sharing tab rather than implying otherwise.
+
+### Where data lives
+
+```mermaid
+flowchart TB
+  subgraph BROWSER["This browser only - nothing leaves the device"]
+    LS["localStorage<br/><b>medithread:v1</b><br/>patient · records · shares · audit"]
+    IDB["IndexedDB<br/><b>medithread-files</b><br/>attachments up to 10 MB"]
+    MEM["In memory<br/>OCR worker · PDF canvas · decrypted token"]
+  end
+  subgraph LINK["In the link itself, if the patient chose to share"]
+    TK["token payload<br/>selected records + patient summary"]
+    NC["mtn1 note code<br/>doctor → patient"]
+  end
+  APP["React app"] --> LS
+  APP --> IDB
+  APP --> MEM
+  APP --> TK
+  APP --> NC
+  style LINK fill:#E3EFEC,stroke:#0F6E63
+```
+
 ## 4. Setup & run
 
 ```bash
