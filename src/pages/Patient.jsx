@@ -9,6 +9,8 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useT, useLang } from '../i18n/index.jsx'
 import { EmergencyCard } from '../components/EmergencyCard.jsx'
 import { ClinicianSummary } from '../components/ClinicianSummary.jsx'
+import { CardOnlyView } from '../components/CardOnlyView.jsx'
+import { tryPrint, mobilePrintUnsupported } from '../utils/print.js'
 
 const uid = (p) => `${p}-${Math.random().toString(36).slice(2, 8)}`
 
@@ -859,6 +861,7 @@ function EmergencyTab({ state, update }) {
   const t = useT()
   const [toast, setToast] = useState('')
   const [err, setErr] = useState('')
+  const [cardOnly, setCardOnly] = useState(false)
   const importRef = React.useRef(null)
   const erUrl = `${location.origin}${location.pathname}#/emergency`
   const p = state.patient
@@ -900,15 +903,24 @@ function EmergencyTab({ state, update }) {
     fr.readAsText(file)
   }
 
+  if (cardOnly) return <CardOnlyView patient={p} />
+
   return (
     <div className="stack split">
       <section>
         <EmergencyCard patient={p} />
 
         <div className="btn-row">
-          <a className="btn quiet" href="#/emergency">{t('er.printCard')}</a>
-          <button className="btn quiet" onClick={() => window.print()}>{t('summary.printBtn')}</button>
+          <button className="btn quiet" onClick={() => tryPrint()}>{t('er.printCard')}</button>
+          <button className="btn quiet" onClick={() => setCardOnly(true)}>{t('cardonly.open')}</button>
         </div>
+
+        {mobilePrintUnsupported() && (
+          <div className="notice flag" style={{ marginTop: 14 }}>
+            <span className="lead">{t('cardonly.hintTitle')}</span>
+            {t('cardonly.iosHint')}
+          </div>
+        )}
 
         <div className="btn-row">
           <button className="btn quiet" onClick={exportJson}>{t('er.export')}</button>

@@ -37,6 +37,7 @@ Demo persona: **Meera Krishnan, 52** — Type 2 Diabetes + Hypertension + Hypoth
 4. **🔗 Share** — select 3 records → 24h link → copy `…#/shared/<token>` → **open the link on your phone over mobile data** (or a second browser with no MediThread data): the records still render, because they travel inside the link. Revoke → the UI states plainly that revocation is enforced locally in this demo. The access log records every open.
 5. **🩺 Doctor** (`#/doctor`) — paste the share code → sees *only* the shared records, plus the patient's summary carried in the link → builds a **note code** → sends it to the patient, who pastes it into their timeline (continuity, not scratch).
 6. **🚨 Emergency** (`#/emergency`, PIN `2481`) — allergies + meds + blood group + last 5 records, QR printable for wallet/phone. One medicine per line, allergies marked in red, and a bilingual English/हिन्दी/தமிழ்/ಕನ್ನಡ toggle. Export **and** import JSON; print a one-page clinician summary.
+   *On a phone:* iOS Safari ignores `window.print()`, so the **Card only** button opens the card with all app chrome removed — screenshot it, or use Safari's Share → Print. Desktop and Android print the real thing.
 7. **🗣️ Language** — switch to हिन्दी / தமிழ் / ಕನ್ನಡ in the header. The whole interface and the emergency card follow; the choice survives a reload.
 
 ## 3. Tech & architecture

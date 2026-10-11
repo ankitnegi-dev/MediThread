@@ -273,5 +273,11 @@
   "err.titleRequired": "शीर्षक दर्ज करें।",
   "err.selectOne": "कम से कम एक रिकॉर्ड चुनें।",
   "err.badJson": "यह फ़ाइल MediThread चार्ट नहीं है।",
-  "err.importFailed": "आयात असफल रहा — {reason}"
+  "err.importFailed": "आयात असफल रहा — {reason}",
+
+  "cardonly.open": "केवल कार्ड",
+  "cardonly.close": "वापस",
+  "cardonly.hintTitle": "iPhone पर प्रिंट करना",
+  "cardonly.iosHint": "iPhone वेब पेज से प्रिंट विंडो नहीं खोलता। Safari का Share बटन चुनकर Print चुनें, या इस दृश्य का स्क्रीनशॉट ले लें — यह केवल कार्ड है, आस-पास कुछ नहीं।",
+  "cardonly.hint": "इस कार्ड को PDF के रूप में सहेजने के लिए ब्राउज़र का Print कमांड इस्तेमाल करें।"
 }

@@ -273,5 +273,11 @@
   "err.titleRequired": "ಒಂದು ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ.",
   "err.selectOne": "ಕನಿಷ್ಠ ಒಂದು ದಾಖಲೆ ಆಯ್ಕೆಮಾಡಿ.",
   "err.badJson": "ಈ ಕಡತ MediThread ಚಾರ್ಟ್ ಅಲ್ಲ.",
-  "err.importFailed": "ಆಮದು ವಿಫಲವಾಗಿದೆ — {reason}"
+  "err.importFailed": "ಆಮದು ವಿಫಲವಾಗಿದೆ — {reason}",
+
+  "cardonly.open": "ಕಾರ್ಡ್ ಮಾತ್ರ",
+  "cardonly.close": "ಹಿಂತಿರುಗಿ",
+  "cardonly.hintTitle": "iPhone ನಲ್ಲಿ ಮುದ್ರಿಸುವುದು",
+  "cardonly.iosHint": "iPhone ವೆಬ್ ಪುಟದಿಂದ ಮುದ್ರಣ ವಿಂಡೋ ತೆರೆಯುವುದಿಲ್ಲ. Safari ನ Share ಬಟನ್ ಒತ್ತಿ ಆಯ್ಕೆಮಾಡಿ Print ಆರಿಸಿ, ಅಥವಾ ಈ ದೃಶ್ಯವನ್ನು ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ತೆಗೆಯಿರಿ — ಇಲ್ಲಿ ಕಾರ್ಡ್ ಮಾತ್ರ, ಸುತ್ತಲ್ಲಿ ಏನೂ ಇಲ್ಲ.",
+  "cardonly.hint": "ಈ ಕಾರ್ಡ್ ಅನ್ನು PDF ಆಗಿ ಉಳಿಸಲು ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ Print ಆದೇಶ ಬಳಸಿ."
 }

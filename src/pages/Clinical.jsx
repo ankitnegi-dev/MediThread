@@ -7,6 +7,8 @@ import { validateShareToken, makeNoteCode, REVOCATION_CAVEAT } from '../utils/sh
 import { addAudit } from '../utils/store.js'
 import { checkInteractions } from '../utils/medSafety.js'
 import { useT } from '../i18n/index.jsx'
+import { CardOnlyView } from '../components/CardOnlyView.jsx'
+import { tryPrint, mobilePrintUnsupported } from '../utils/print.js'
 
 export function Doctor({ state, setState }) {
   const t = useT()
@@ -309,6 +311,7 @@ export function Emergency({ state, setState }) {
   const t = useT()
   const [pin, setPin] = useState('')
   const [unlocked, setUnlocked] = useState(false)
+  const [cardOnly, setCardOnly] = useState(false)
   const [tries, setTries] = useState(0)
   const [err, setErr] = useState('')
   const p = state.patient
@@ -332,42 +335,22 @@ export function Emergency({ state, setState }) {
 
   const locked = tries >= LOCKOUT_AT
 
-  if (!unlocked) {
-    return (
-      <div className="pinwrap">
-        <p className="kicker" style={{ color: 'var(--stamp)' }}>{t('er.forResponders')}</p>
-        <h1 style={{ font: '600 32px/1.12 var(--serif)', marginBottom: 12 }}>{t('er.access')}</h1>
-        <p className="meta" style={{ marginBottom: 24 }}>{t('er.accessBody')}</p>
-        <label htmlFor="pin">{t('er.pinLabel')}</label>
-        <input
-          id="pin"
-          className="pininput"
-          value={pin}
-          inputMode="numeric"
-          maxLength={4}
-          autoComplete="off"
-          disabled={locked}
-          placeholder="· · · ·"
-          onChange={(e) => { setPin(e.target.value.replace(/\D/g, '')); setErr('') }}
-          onKeyDown={(e) => { if (e.key === 'Enter') tryUnlock() }}
-        />
-        {err && (
-          <div className="notice crit" style={{ marginTop: 14 }} role="alert">
-            <span className="lead">{t('er.notUnlocked')}</span>{err}
-          </div>
-        )}
-        <div className="btn-row">
-          <button className="btn" onClick={tryUnlock} disabled={pin.length !== 4 || locked}>{t('er.unlock')}</button>
-          <a className="btn quiet" href="#/">{t('er.goBack')}</a>
-        </div>
-        <p className="fineprint">{t('er.demoPin', { pin: p.emergencyPin })}</p>
-      </div>
-    )
-  }
+  if (unlocked && cardOnly) return <CardOnlyView patient={p} />
 
-  return (
+  const unlockedCard = (
     <div>
       <EmergencyCard patient={p} />
+
+      <div className="btn-row">
+        <button className="btn quiet" onClick={() => tryPrint()}>{t('er.printCard')}</button>
+        <button className="btn quiet" onClick={() => setCardOnly(true)}>{t('cardonly.open')}</button>
+      </div>
+      {mobilePrintUnsupported() && (
+        <div className="notice flag" style={{ marginTop: 14 }}>
+          <span className="lead">{t('cardonly.hintTitle')}</span>
+          {t('cardonly.iosHint')}
+        </div>
+      )}
 
       <h2 className="sec-title" style={{ marginTop: 34 }}>
         {t('er.recent')}
@@ -378,6 +361,39 @@ export function Emergency({ state, setState }) {
       </div>
 
       <div className="btn-row"><a className="btn quiet" href="#/">{t('er.lock')}</a></div>
+    </div>
+  )
+
+  if (unlocked) return unlockedCard
+
+  return (
+    <div className="pinwrap">
+      <p className="kicker" style={{ color: 'var(--stamp)' }}>{t('er.forResponders')}</p>
+      <h1 style={{ font: '600 32px/1.12 var(--serif)', marginBottom: 12 }}>{t('er.access')}</h1>
+      <p className="meta" style={{ marginBottom: 24 }}>{t('er.accessBody')}</p>
+      <label htmlFor="pin">{t('er.pinLabel')}</label>
+      <input
+        id="pin"
+        className="pininput"
+        value={pin}
+        inputMode="numeric"
+        maxLength={4}
+        autoComplete="off"
+        disabled={locked}
+        placeholder="· · · ·"
+        onChange={(e) => { setPin(e.target.value.replace(/\D/g, '')); setErr('') }}
+        onKeyDown={(e) => { if (e.key === 'Enter') tryUnlock() }}
+      />
+      {err && (
+        <div className="notice crit" style={{ marginTop: 14 }} role="alert">
+          <span className="lead">{t('er.notUnlocked')}</span>{err}
+        </div>
+      )}
+      <div className="btn-row">
+        <button className="btn" onClick={tryUnlock} disabled={pin.length !== 4 || locked}>{t('er.unlock')}</button>
+        <a className="btn quiet" href="#/">{t('er.goBack')}</a>
+      </div>
+      <p className="fineprint">{t('er.demoPin', { pin: p.emergencyPin })}</p>
     </div>
   )
 }

@@ -273,5 +273,11 @@
   "err.titleRequired": "Add a title.",
   "err.selectOne": "Select at least one record.",
   "err.badJson": "That file is not a MediThread chart.",
-  "err.importFailed": "The import failed — {reason}"
+  "err.importFailed": "The import failed — {reason}",
+
+  "cardonly.open": "Card only",
+  "cardonly.close": "Back",
+  "cardonly.hintTitle": "Printing on iPhone",
+  "cardonly.iosHint": "iPhone does not open the print sheet from a web page. Use Safari’s Share button and choose Print, or just take a screenshot — this view is the whole card with nothing around it.",
+  "cardonly.hint": "Use your browser’s Print command to save this card as a PDF."
 }

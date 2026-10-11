@@ -761,6 +761,52 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
 .ercard-toggle { margin-top: 18px; }
 
 /* ------------------------------------------------------------
+   Card-only view — the phone fallback for printing
+   ------------------------------------------------------------ */
+
+.cardonly {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.cardonly-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.cardonly-hint { margin-bottom: 16px; }
+
+.cardonly-foot {
+  margin-top: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-40);
+  text-align: center;
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Nothing but the card on this view. */
+body.cardonly-mode .binder,
+body.cardonly-mode .colophon { display: none; }
+body.cardonly-mode .sheet {
+  padding: 20px 16px 40px;
+  border-top: 1px solid var(--rule);
+  min-height: 0;
+}
+
+@media print {
+  .cardonly-bar, .cardonly-foot, .cardonly-hint { display: none !important; }
+  .cardonly { max-width: none; margin: 0; }
+}
+
+/* ------------------------------------------------------------
    Clinician summary — the one page a clinician prints
    ------------------------------------------------------------ */
 
