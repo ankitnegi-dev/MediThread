@@ -1,5 +1,6 @@
 // Clinical guardrails: drug interactions + duplicate-test detection.
 // Curated, explainable rules — ideal for hackathon demo (not medical advice).
+import { labNumber } from './extract.js'
 
 const INTERACTIONS = [
   {
@@ -15,7 +16,7 @@ const INTERACTIONS = [
   {
     pair: ['metformin', 'contrast'],
     level: 'high',
-    msg: 'Metformin + iodinated contrast: hold metformin per radiology advice, check creatinine/eGFR after scan.'
+    msg: 'Metformin + iodinated contrast dye: hold metformin per radiology advice, check creatinine/eGFR after the scan. Contrast can push the combination towards lactic acidosis.'
   },
   {
     pair: ['atorvastatin', 'clarithromycin'],
@@ -23,9 +24,24 @@ const INTERACTIONS = [
     msg: 'Clarithromycin raises statin levels → muscle injury risk. Use azithromycin instead or pause statin.'
   },
   {
+    pair: ['spironolactone', 'telmisartan'],
+    level: 'high',
+    msg: 'Potassium-sparing diuretic + ACE inhibitor/ARB: both raise potassium. Check potassium and creatinine before and after starting the second drug.'
+  },
+  {
+    pair: ['amlodipine', 'spironolactone'],
+    level: 'medium',
+    msg: 'Calcium-channel blocker + potassium-sparing diuretic: additive potassium retention. Check electrolytes instead of leaving it to chance.'
+  },
+  {
+    pair: ['metformin', 'spironolactone'],
+    level: 'medium',
+    msg: 'Spironolactone can reduce kidney clearance of metformin. Check creatinine and watch for lactic acidosis symptoms if both continue.'
+  },
+  {
     pair: ['levothyroxine', 'calcium'],
     level: 'medium',
-    msg: 'Calcium/iron reduces levothyroxine absorption. Separate by 4 hours, take thyroid pill empty stomach.'
+    msg: 'Calcium reduces levothyroxine absorption. Separate by 4 hours, take the thyroid pill empty stomach.'
   },
   {
     pair: ['levothyroxine', 'iron'],
@@ -44,22 +60,39 @@ const INTERACTIONS = [
   }
 ]
 
-const norm = (s) => (s || '').toLowerCase().trim()
+// A prescription can name the same drug differently. Fold the common ones into
+// one key so "iodinated contrast" and "contrast media" hit the same rule, and
+// "calcium carbonate" hits the calcium rule.
+const ALIASES = {
+  'iodinated contrast': 'contrast',
+  'contrast media': 'contrast',
+  'iodinated contrast dye': 'contrast',
+  'calcium carbonate': 'calcium',
+  'ferrous sulphate': 'iron',
+  'ferrous sulfate': 'iron',
+  'acetaminophen': 'paracetamol',
+  'thyroxine': 'levothyroxine',
+  'glibenclamide': 'glimepiride'
+}
 
+const norm = (s) => {
+  const k = (s || '').toLowerCase().trim()
+  return ALIASES[k] || k
+}
+
+/**
+ * Flag a rule when the medicine being added completes the pair with something
+ * already on the list. Every other member of a rule must already be present.
+ */
 export function checkInteractions(currentMeds, newMedName) {
   const cur = currentMeds.map((m) => norm(m.name))
   const nm = norm(newMedName)
+  if (!nm) return []
   const hits = []
   for (const rule of INTERACTIONS) {
-    const [a, b] = rule.pair
-    const hasA = cur.includes(a) || nm === a
-    const hasB = cur.includes(b) || nm === b
-    // Only flag if the new med completes the pair with an existing med
-    const newIsPart = nm === a || nm === b
-    const otherExists = (nm === a && cur.includes(b)) || (nm === b && cur.includes(a))
-    if (newIsPart && otherExists && hasA && hasB) hits.push(rule)
-    // Also flag pairs already present in current list
-    if (!nm && hasA && hasB) hits.push(rule)
+    if (!rule.pair.includes(nm)) continue
+    const others = rule.pair.filter((x) => x !== nm)
+    if (others.length && others.every((o) => cur.includes(o))) hits.push(rule)
   }
   return hits
 }
@@ -68,14 +101,14 @@ export function checkExistingCombo(currentMeds) {
   const names = currentMeds.map((m) => norm(m.name))
   const hits = []
   for (const rule of INTERACTIONS) {
-    const [a, b] = rule.pair
-    if (names.includes(a) && names.includes(b)) hits.push(rule)
+    if (rule.pair.every((x) => names.includes(x))) hits.push(rule)
   }
   return hits
 }
 
+export const RULES = INTERACTIONS
+
 // Duplicate-test guard: same lab name within `windowDays` → warn against repeat.
-import { labNumber } from './extract.js'
 const TEST_WINDOWS = {
   HbA1c: 90,
   TSH: 60,

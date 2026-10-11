@@ -94,18 +94,20 @@ export function ClinicianSummary({ patient, records = [] }) {
       {recent.length > 0 && (
         <>
           <h3 className="summary-h">{t('summary.lastResults')}</h3>
-          <table className="summary-table">
-            <thead><tr><th>{t('upload.date')}</th><th>{t('upload.titleF')}</th><th>{t('upload.values')}</th></tr></thead>
-            <tbody>
-              {recent.map((r) => (
-                <tr key={r.id}>
-                  <td className="num">{r.date}</td>
-                  <td>{r.title}</td>
-                  <td className="num">{Object.entries(r.labs).map(([k, v]) => `${k} ${v}`).join(', ')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="scroll-x">
+            <table className="summary-table">
+              <thead><tr><th>{t('upload.date')}</th><th>{t('upload.titleF')}</th><th>{t('upload.values')}</th></tr></thead>
+              <tbody>
+                {recent.map((r) => (
+                  <tr key={r.id}>
+                    <td className="num">{r.date}</td>
+                    <td>{r.title}</td>
+                    <td className="num">{Object.entries(r.labs).map(([k, v]) => `${k} ${v}`).join(', ')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

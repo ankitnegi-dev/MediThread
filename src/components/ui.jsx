@@ -161,7 +161,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
     )
   }
 
-  const W = 560, H = 210, P = 38, PT = 30
+  const W = 560, H = 220, P = 38, PT = 34
   const vals = pts.map((p) => labNumber(p.labs[test]))
   const lo = Math.min(...vals, target ?? Infinity)
   const hi = Math.max(...vals, target ?? -Infinity)
@@ -173,6 +173,15 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
   const y = (v) => H - P - ((v - min) / span) * (H - P - PT)
   const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(vals[i])}`).join(' ')
   const improving = vals[vals.length - 1] < vals[0]
+
+  // Keep a value label clear of the dashed target line instead of letting the
+  // two overlap when the reading sits right on target.
+  const targetY = target === null ? null : y(target)
+  const labelY = (v) => {
+    const base = y(v) - 14
+    if (targetY === null) return base
+    return Math.abs(base - targetY) < 16 ? Math.min(base, targetY - 12) : base
+  }
 
   return (
     <div>
@@ -194,9 +203,9 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
             <line x1={P} x2={W - P} y1={y(target)} y2={y(target)} stroke="var(--flag)" strokeWidth="1.5" strokeDasharray="6 4" />
             <text
               x={P + 4}
-              y={y(target) - 7}
+              y={y(target) - 8}
               fontFamily="var(--mono)"
-              fontSize="10.5"
+              fontSize="11"
               fill="var(--flag)"
             >
               target {target}{unit}
@@ -213,7 +222,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
             {(i === 0 || String(p.labs[test]) !== String(pts[i - 1].labs[test])) && (
               <text
                 x={x(i)}
-                y={y(vals[i]) - 13}
+                y={labelY(vals[i])}
                 textAnchor="middle"
                 fontFamily="var(--mono)"
                 fontSize="11.5"
@@ -223,7 +232,7 @@ export function LabChart({ records, test = 'HbA1c', target = null, unit = '' }) 
                 {p.labs[test]}
               </text>
             )}
-            <text x={x(i)} y={H - 12} textAnchor="middle" fontFamily="var(--mono)" fontSize="10" fill="var(--ink-40)">
+            <text x={x(i)} y={H - 10} textAnchor="middle" fontFamily="var(--mono)" fontSize="11" fill="var(--ink-60)">
               {p.date.slice(2)}
             </text>
           </g>

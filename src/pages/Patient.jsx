@@ -8,6 +8,7 @@ import { expiryOptions, makeShareToken, decodeNoteCode, REVOCATION_CAVEAT } from
 import { QRCodeSVG } from 'qrcode.react'
 import { useT, useLang } from '../i18n/index.jsx'
 import { EmergencyCard } from '../components/EmergencyCard.jsx'
+import { ClinicianSummary } from '../components/ClinicianSummary.jsx'
 
 const uid = (p) => `${p}-${Math.random().toString(36).slice(2, 8)}`
 
@@ -74,15 +75,23 @@ export default function Patient({ state, setState }) {
         </dl>
       </header>
 
-      <nav className="filters" style={{ marginTop: 30 }} aria-label={t('chart.kicker')}>
+      <nav className="filters" style={{ marginTop: 30 }} role="tablist" aria-label={t('chart.kicker')}>
         {SECTIONS.map((s) => (
-          <button key={s.key} aria-pressed={tab === s.key} onClick={() => setTab(s.key)}>
+          <button
+            key={s.key}
+            role="tab"
+            id={`tab-${s.key}`}
+            aria-selected={tab === s.key}
+            aria-controls={`panel-${s.key}`}
+            onClick={() => setTab(s.key)}
+          >
             {t(s.labelKey)}
           </button>
         ))}
       </nav>
 
       <div style={{ marginTop: 34 }}>
+        <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'timeline' && (
           <div className="stack split">
             <div>
@@ -149,6 +158,13 @@ export default function Patient({ state, setState }) {
                 </div>
               </section>
 
+              <section>
+                <div className="btn-row" style={{ marginTop: 0 }}>
+                  <button className="btn quiet small" onClick={() => window.print()}>{t('summary.printBtn')}</button>
+                </div>
+                <ClinicianSummary patient={p} records={state.records} />
+              </section>
+
               <section className="panel">
                 <div className="panel-head"><h2>{t('demo.title')}</h2></div>
                 <div className="panel-pad">
@@ -169,6 +185,7 @@ export default function Patient({ state, setState }) {
         {tab === 'meds' && <MedsTab state={state} update={update} />}
         {tab === 'share' && <ShareTab state={state} update={update} />}
         {tab === 'emergency' && <EmergencyTab state={state} />}
+        </div>
       </div>
     </div>
   )
@@ -838,10 +855,50 @@ function shareUrl(token) {
   return `${location.origin}${location.pathname}#/shared/${token}`
 }
 
-function EmergencyTab({ state }) {
+function EmergencyTab({ state, update }) {
   const t = useT()
+  const [toast, setToast] = useState('')
+  const [err, setErr] = useState('')
+  const importRef = React.useRef(null)
   const erUrl = `${location.origin}${location.pathname}#/emergency`
   const p = state.patient
+
+  const flash = (m) => { setToast(m); setTimeout(() => setToast(''), 2600) }
+
+  const exportJson = () => {
+    const blob = new Blob([JSON.stringify({ patient: p, records: state.records }, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'medithread-chart.json'
+    a.click()
+    flash(t('toast.exported'))
+  }
+
+  const importJson = (file) => {
+    setErr('')
+    const fr = new FileReader()
+    fr.onload = () => {
+      try {
+        const data = JSON.parse(fr.result)
+        if (!data || !data.patient || !Array.isArray(data.records)) throw new Error(t('err.badJson'))
+        const merged = [...data.records, ...state.records]
+        const seen = new Set()
+        const deduped = merged.filter((r) => {
+          if (!r || !r.id || seen.has(r.id)) return false
+          seen.add(r.id)
+          return true
+        })
+        const next = { ...state, patient: data.patient, records: deduped }
+        addAudit(next, `Imported chart from file: ${deduped.length} records`)
+        update(next)
+        flash(t('toast.imported'))
+      } catch (e) {
+        setErr(e.message === t('err.badJson') ? t('err.badJson') : t('err.importFailed', { reason: e.message }))
+      }
+    }
+    fr.onerror = () => setErr(t('err.importFailed', { reason: fr.error?.name || 'read error' }))
+    fr.readAsText(file)
+  }
 
   return (
     <div className="stack split">
@@ -850,14 +907,27 @@ function EmergencyTab({ state }) {
 
         <div className="btn-row">
           <a className="btn quiet" href="#/emergency">{t('er.printCard')}</a>
-          <button className="btn quiet" onClick={() => {
-            const blob = new Blob([JSON.stringify({ patient: p, records: state.records }, null, 2)], { type: 'application/json' })
-            const a = document.createElement('a')
-            a.href = URL.createObjectURL(blob)
-            a.download = 'medithread-chart.json'
-            a.click()
-          }}>{t('er.export')}</button>
+          <button className="btn quiet" onClick={() => window.print()}>{t('summary.printBtn')}</button>
         </div>
+
+        <div className="btn-row">
+          <button className="btn quiet" onClick={exportJson}>{t('er.export')}</button>
+          <button className="btn quiet" onClick={() => importRef.current?.click()}>{t('er.import')}</button>
+          <input
+            ref={importRef}
+            type="file"
+            accept="application/json,.json"
+            className="sr-only"
+            aria-label={t('er.import')}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) importJson(f); e.target.value = '' }}
+          />
+        </div>
+
+        {err && (
+          <div className="notice crit" style={{ marginTop: 14 }} role="alert">
+            <span className="lead">{t('err.importFailed', { reason: '' })}</span>{err}
+          </div>
+        )}
       </section>
 
       <section className="panel">
@@ -873,6 +943,8 @@ function EmergencyTab({ state }) {
           <p className="fineprint">{t('er.scanBody', { pin: p.emergencyPin })}</p>
         </div>
       </section>
+
+      {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )
 }

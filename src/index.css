@@ -12,9 +12,9 @@
   --sheet-3:  #EAECE2;
 
   --ink:      #151A17;
-  --ink-80:   #37403A;
-  --ink-60:   #5C655F;
-  --ink-40:   #8B938D;
+  --ink-80:   #2F3833;
+  --ink-60:   #4F5852;
+  --ink-40:   #676F6A;   /* 5.0:1 on sheet, 4.6:1 on sheet-2 — WCAG AA for small text */
 
   --rule:     #D6D9CF;
   --rule-2:   #E6E8DF;
@@ -821,6 +821,8 @@ td.num { font-family: var(--mono); font-size: 12.5px; }
 
 .summary-table td { font-size: 12.5px; }
 .summary-table td:first-child { white-space: nowrap; }
+.summary-table th:last-child { white-space: normal; }
+.summary-table td.num:last-child { white-space: normal; overflow-wrap: anywhere; }
 
 @media (max-width: 620px) {
   .summary-grid { grid-template-columns: 1fr; }
@@ -1011,9 +1013,30 @@ code.inline {
 }
 
 @media print {
-  .binder, .colophon, .entry-actions, .filters, .btn { display: none !important; }
+  .binder, .colophon, .entry-actions, .filters, .tabs,
+  .btn, .toast, .dropzone, .progress, .docview { display: none !important; }
+
   body { background: #fff; }
-  .sheet { border: 0; padding: 0; }
+  .desk { padding: 0; }
+  .sheet { border: 0; padding: 0; min-height: 0; max-width: none; }
+
+  .panel, .summary { break-inside: avoid; border-color: #999; }
+  .notice, .alert { break-inside: avoid; }
+
+  /* The emergency card is the thing worth printing. Give it the whole page. */
+  .ercard {
+    border: 2.5pt solid #000;
+    padding: 14pt;
+    page-break-inside: avoid;
+  }
+  .ercard .rowline.critical {
+    background: #f0f0f0 !important;
+    border-left: 3pt solid #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ercard-toggle { display: none !important; }
+  .print-only { display: block !important; }
 }
 
 /* ------------------------------------------------------------
@@ -1049,7 +1072,25 @@ code.inline {
   .entry-top { gap: 8px; }
   .panel-head, .panel-pad { padding-left: 16px; padding-right: 16px; }
   .ercard { padding: 20px 18px; }
+  .ercard .blood { text-align: left; }
   .ercard .rowline { flex-direction: column; gap: 4px; }
   .ercard .rowline dt { flex: none; }
+  .ercard .rowline.critical { margin-left: -8px; padding-left: 10px; }
   .sec-title .hint { display: none; }
+  .summary { padding: 16px 14px 20px; }
+  .summary-grid { grid-template-columns: 1fr; }
+
+  /* touch targets */
+  .filters button,
+  .tabs .tab,
+  .btn,
+  .btn.small,
+  .st,
+  input[type='checkbox'] { min-height: 44px; }
+
+  .filters button { display: inline-flex; align-items: center; padding-left: 18px; padding-right: 18px; }
+  .btn.small { padding: 11px 16px; font-size: 13px; }
+  .tab { padding: 12px 16px 13px; }
+  .tab small { display: none; }
+  .qrbox { padding: 14px; }
 }
