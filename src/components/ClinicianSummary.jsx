@@ -96,7 +96,7 @@ export function ClinicianSummary({ patient, records = [] }) {
           <h3 className="summary-h">{t('summary.lastResults')}</h3>
           <div className="scroll-x">
             <table className="summary-table">
-              <thead><tr><th>{t('upload.date')}</th><th>{t('upload.titleF')}</th><th>{t('upload.values')}</th></tr></thead>
+              <thead><tr><th>{t('summary.dateCol')}</th><th>{t('upload.titleF')}</th><th>{t('summary.results')}</th></tr></thead>
               <tbody>
                 {recent.map((r) => (
                   <tr key={r.id}>

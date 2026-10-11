@@ -258,6 +258,8 @@
   "summary.trend": "{test} का रुझान",
   "summary.abnormal": "पिछले असामान्य नतीजे",
   "summary.abnormalNone": "कोई असामान्य नतीजा चिन्हित नहीं।",
+  "summary.results": "नतीजे",
+  "summary.dateCol": "तारीख़",
 
   "toast.linkCreated": "लिंक बन गया",
   "toast.linkCopied": "लिंक कॉपी हो गया",

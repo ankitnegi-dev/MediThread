@@ -258,6 +258,8 @@
   "summary.trend": "{test} trend",
   "summary.abnormal": "Last abnormal results",
   "summary.abnormalNone": "No out-of-range results flagged.",
+  "summary.results": "Results",
+  "summary.dateCol": "Date",
 
   "toast.linkCreated": "Link created",
   "toast.linkCopied": "Link copied",

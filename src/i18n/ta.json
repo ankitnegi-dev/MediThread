@@ -258,6 +258,8 @@
   "summary.trend": "{test} போக்கு",
   "summary.abnormal": "கடைசி சிறப்பு முடிவுகள்",
   "summary.abnormalNone": "சிறப்பு வரம்புக்கு வெளியான முடிவு குறிக்கப்படவில்லை.",
+  "summary.results": "முடிவுகள்",
+  "summary.dateCol": "தேதி",
 
   "toast.linkCreated": "இணைப்பு உருவானது",
   "toast.linkCopied": "இணைப்பு நகலெடுக்கப்பட்டது",

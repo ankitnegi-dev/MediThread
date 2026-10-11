@@ -258,6 +258,8 @@
   "summary.trend": "{test} ಪ್ರವೃತ್ತಿ",
   "summary.abnormal": "ಕೊನೆಯ ಅಸಾಮಾನ್ಯ ಫಲಿತಾಂಶಗಳು",
   "summary.abnormalNone": "ಸಮಯರೆಮ್ಮೆ ಹೊರಗಿನ ಯಾವುದೇ ಫಲಿತಾಂಶ ಗುರುತಿಸಲ್ಪಟ್ಟಿಲ್ಲ.",
+  "summary.results": "ಫಲಿತಾಂಶಗಳು",
+  "summary.dateCol": "ದಿನಾಂಕ",
 
   "toast.linkCreated": "ಲಿಂಕ್ ರಚಿತವಾಗಿದೆ",
   "toast.linkCopied": "ಲಿಂಕ್ ನಕಲಾಗಿದೆ",
