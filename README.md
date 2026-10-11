@@ -1,4 +1,4 @@
-# 🧵 MediThread: Own Your Health History
+# MediThread: Own Your Health History
 
 > **Hackathon:** 24-Hour Web Development Hackathon · IIITDM Kancheepuram
 > **Domain:** HealthTech · **Problem:** *Lost in Transit: Fragmented Medical Records and Repeated Care Across Providers*
@@ -109,17 +109,17 @@ OCR downloads its language packs (English, हिन्दी, தமிழி) 
 - **Feasibility:** static deploy, zero setup. FHIR/ABDM-ready model (`patient/records/shares` maps to Consent + DocumentReference). Four Indian languages and on-device OCR already ship, so the remaining work is distribution, not capability.
 - **Future:** a backend (Supabase/FHIR) would give server-side consent revocation and a real doctor→patient write-back, replacing the note-code workaround; then e-sign consent, ABDM Health ID link, lab API ingestion and multilingual voice recall.
 
-## Team <Team name>
+## Team XYZ
 
 | Name | Role | Contribution | GitHub |
 |---|---|---|---|
 | Ankit Negi (Team Leader) | Full-stack developer | Architecture, sharing flow, deployment | [@ankitnegi-dev](https://github.com/ankitnegi-dev) |
-| Prince KUmar | Frontend / UI | Design system, emergency card | [@poddarchhatri-source](https://github.com/poddarchhatri-source) |
-| Gopoal Nihal | Clinical logic | Interaction and duplicate-test rules, seed data | [@gopal1nihal](https://github.com/gopal1nihal) |
+| Prince Kumar | Frontend / UI | Design system, emergency card | [@poddarchhatri-source](https://github.com/poddarchhatri-source) |
+| Gopal Nihal | Clinical logic | Interaction and duplicate-test rules, seed data | [@gopal1nihal](https://github.com/gopal1nihal) |
 
 **Institution:** Indian Institute of Information Technology, Design and Manufacturing, Kancheepuram 
 
-**Contact:** <cs24i1007@iiitdm.ac.in>
+**Contact:** cs24i1007@iiitdm.ac.in
 
 ---
 *Disclaimer: demo clinical rules are illustrative for a hackathon, not medical advice.*
