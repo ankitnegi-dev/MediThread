@@ -4,4 +4,8 @@ dist
 .DS_Store
 *.log
 .opencode/
+
+# Problem statement PDFs stay out of the repo...
 *.pdf
+# ...except the bundled sample report the app serves for demo mode.
+!public/sample-lab-report.pdf
